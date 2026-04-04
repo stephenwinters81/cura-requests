@@ -37,7 +37,17 @@ npx prisma studio    # Database GUI
 npx prisma db seed   # Seed providers, exam types, admin + doctor users
 pm2 restart requests-app --update-env   # Restart app (picks up new env vars)
 pm2 restart requests-worker --update-env # Restart worker
+git push             # Push to GitHub (token in remote URL)
 ```
+
+## Git & Deployment
+
+- **Repo:** github.com/stephenwinters81/cura-requests (private)
+- **Branch:** main
+- **Host:** BinaryLane VPS (requests-cura via Tailscale)
+- **Process manager:** PM2 (requests-app + requests-worker)
+- **Deploy workflow:** edit → `npm run build` → `pm2 restart requests-app requests-worker --update-env`
+- **Git user:** Stephen Winters (stephen.winters@gmail.com / stephenwinters81)
 
 ## Architecture Notes
 
