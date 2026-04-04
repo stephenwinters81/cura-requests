@@ -128,8 +128,14 @@ export async function sendFax(
 }
 
 // --- Verify Notifyre webhook signature ---
+// Notifyre sends: header = "t=<timestamp>,v=<hmac>"
+// Signature is HMAC-SHA256 of "<timestamp>.<json_payload>" using the webhook secret
 
-export function verifyWebhook(payload: string, signature: string): boolean {
+export function verifyWebhook(
+  signatureHeader: string,
+  payload: unknown,
+  toleranceSec = 300
+): boolean {
   const secret = process.env.NOTIFYRE_WEBHOOK_SECRET;
   if (!secret) {
     console.error("NOTIFYRE_WEBHOOK_SECRET not configured");
@@ -137,14 +143,32 @@ export function verifyWebhook(payload: string, signature: string): boolean {
   }
 
   try {
-    const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
+    // Parse "t=<timestamp>,v=<signature>" header
+    let timestamp = "";
+    let signature = "";
+    for (const part of signatureHeader.split(",")) {
+      const [key, val] = part.split("=");
+      if (key === "t") timestamp = val;
+      if (key === "v") signature = val;
+    }
 
+    if (!timestamp || !signature) return false;
+
+    // Check timestamp freshness
+    const now = Date.now() / 1000;
+    if (now - Number(timestamp) > toleranceSec) return false;
+
+    // Compute expected signature
+    const message = `${timestamp}.${JSON.stringify(payload)}`;
+    const expected = crypto
+      .createHmac("sha256", secret)
+      .update(message)
+      .digest("hex");
+
+    // Timing-safe comparison
     const sigBuffer = Buffer.from(signature, "hex");
     const expectedBuffer = Buffer.from(expected, "hex");
-
-    if (sigBuffer.length !== expectedBuffer.length) {
-      return false;
-    }
+    if (sigBuffer.length !== expectedBuffer.length) return false;
 
     return crypto.timingSafeEqual(sigBuffer, expectedBuffer);
   } catch {
