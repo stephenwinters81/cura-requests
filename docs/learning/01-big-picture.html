@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 01: The Big Picture — Requests Learning Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:wght@900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --bg:#0c0e14;--surface:#161924;--surface2:#1e2130;--surface3:#262a3a;--border:#2c3044;
+    --text:#e8e4df;--text-soft:#b0aaa2;--muted:#7a7670;
+    --amber:#f0a85c;--amber-dim:rgba(240,168,92,0.12);--amber-mid:rgba(240,168,92,0.25);
+    --green:#5ce08a;--green-dim:rgba(92,224,138,0.12);--green-mid:rgba(92,224,138,0.3);
+    --red:#e05c6f;--red-dim:rgba(224,92,111,0.12);--red-mid:rgba(224,92,111,0.3);
+    --blue:#5ca8f0;--blue-dim:rgba(92,168,240,0.12);
+    --cyan:#22d3ee;--purple:#a07cf0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+  .container{max-width:780px;margin:0 auto;padding:48px 28px 80px}
+  .topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;animation:fadeUp .5s ease-out}
+  .topnav a{color:var(--text-soft);text-decoration:none;font-size:.88rem;font-weight:400;transition:color .2s}
+  .topnav a:hover{color:var(--amber)}
+  .topnav .mod-indicator{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .header{margin-bottom:44px;animation:fadeUp .5s ease-out .05s both}
+  .header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:900;line-height:1.2;margin-bottom:8px}
+  .header .lead{color:var(--text-soft);font-size:1.05rem;font-weight:300}
+  h2{font-size:1.25rem;font-weight:700;margin:48px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border);color:var(--text);position:relative}
+  h2 .num{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.85rem;margin-right:8px}
+  h3{font-size:1.05rem;font-weight:600;margin:28px 0 10px;color:var(--purple)}
+  p{margin-bottom:16px;font-weight:300;color:var(--text-soft)}
+  p strong{color:var(--text);font-weight:500}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin:20px 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;overflow-x:auto;white-space:pre;color:var(--cyan)}
+  .vflow{margin:28px 0;display:flex;flex-direction:column;gap:0}
+  .vbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-align:center;position:relative;width:100%}
+  .vbox .vbox-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .vbox .vbox-label.amber{color:var(--amber)}.vbox .vbox-label.blue{color:var(--blue)}.vbox .vbox-label.green{color:var(--green)}.vbox .vbox-label.purple{color:var(--purple)}.vbox .vbox-label.cyan{color:var(--cyan)}
+  .vbox .vbox-title{font-weight:600;font-size:.95rem;margin-bottom:4px}
+  .vbox .vbox-desc{font-size:.82rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .varrow{display:flex;align-items:center;justify-content:center;padding:6px 0;color:var(--muted);font-size:.75rem;gap:6px;font-weight:300}
+  .varrow .arrow-line{width:2px;height:24px;background:var(--border);border-radius:1px}
+  .varrow .arrow-head{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--border)}
+  .varrow-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em}
+  .hflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0;margin:28px 0}
+  .hflow-3{grid-template-columns:1fr auto 1fr auto 1fr}
+  .harrow{display:flex;flex-direction:column;align-items:center;padding:0 10px;color:var(--muted)}
+  .harrow .arrow-shaft{width:32px;height:2px;background:var(--border)}
+  .harrow .arrow-tip{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:6px solid var(--border)}
+  .harrow-stack{display:flex;align-items:center}
+  .harrow-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);text-align:center;margin-top:4px}
+  .pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+  .pipe-stage{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;position:relative}
+  .pipe-stage::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:6px solid var(--border)}
+  .pipe-stage:last-child::after{display:none}
+  .pipe-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-bottom:4px}
+  .pipe-name{font-weight:600;font-size:.88rem;margin-bottom:4px}
+  .pipe-desc{font-size:.75rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .pipe-stage:nth-child(1) .pipe-name{color:var(--amber)}
+  .pipe-stage:nth-child(2) .pipe-name{color:var(--blue)}
+  .pipe-stage:nth-child(3) .pipe-name{color:var(--purple)}
+  .pipe-stage:nth-child(4) .pipe-name{color:var(--green)}
+  .callout{background:var(--surface2);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem;border-left:3px solid var(--blue);font-weight:300}
+  .callout strong{font-weight:600}
+  .callout.insight{border-left-color:var(--amber)} .callout.insight strong{color:var(--amber)}
+  .callout.remember{border-left-color:var(--green)} .callout.remember strong{color:var(--green)}
+  .callout.warning{border-left-color:var(--red)} .callout.warning strong{color:var(--red)}
+  .analogy{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px dashed var(--amber-mid);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem}
+  .analogy::before{content:'Think of it like...';display:block;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);font-size:.88rem;font-weight:300}
+  th{color:var(--amber);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+  code{font-family:'JetBrains Mono',monospace;background:var(--surface);padding:2px 7px;border-radius:4px;font-size:.84em;color:var(--cyan)}
+  .mcq{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin:32px 0;animation:fadeUp .4s ease-out}
+  .mcq-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .mcq-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:var(--amber-dim);padding:3px 10px;border-radius:100px}
+  .mcq-topic{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted)}
+  .mcq-question{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:16px;line-height:1.5}
+  .mcq-options{display:grid;gap:8px}
+  .mcq-opt{display:block;width:100%;text-align:left;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:400;color:var(--text-soft);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;position:relative}
+  .mcq-opt:hover:not(:disabled){border-color:var(--amber-mid);color:var(--text);background:var(--surface3)}
+  .mcq-opt:disabled{cursor:default;opacity:0.7}
+  .mcq-opt.correct{border-color:var(--green-mid)!important;background:var(--green-dim)!important;color:var(--green)!important;opacity:1!important}
+  .mcq-opt.wrong{border-color:var(--red-mid)!important;background:var(--red-dim)!important;color:var(--red)!important;opacity:1!important}
+  .mcq-opt .letter{font-family:'JetBrains Mono',monospace;font-weight:600;margin-right:8px;font-size:.8rem}
+  .mcq-explain{margin-top:14px;padding:14px 16px;border-radius:8px;font-size:.88rem;line-height:1.6;display:none;font-weight:300}
+  .mcq-explain.show{display:block}
+  .mcq-explain.right{background:var(--green-dim);border:1px solid var(--green-mid);color:var(--green)}
+  .mcq-explain.wrong{background:var(--red-dim);border:1px solid var(--red-mid);color:var(--text-soft)}
+  .mcq-explain strong{font-weight:500}
+  .bottomnav{display:flex;justify-content:space-between;align-items:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border)}
+  .bottomnav a{color:var(--amber);text-decoration:none;font-size:.9rem;font-weight:500;transition:opacity .2s}
+  .bottomnav a:hover{opacity:.8}
+  .mod-score{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--muted)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:640px){.hflow{grid-template-columns:1fr;gap:0}.harrow{transform:rotate(90deg);padding:8px 0}.pipeline{grid-template-columns:1fr 1fr}.pipe-stage::after{display:none}}
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Top Navigation -->
+    <nav class="topnav">
+      <a href="index.html">&larr; Back to Hub</a>
+      <span class="mod-indicator">Module 01 / 07</span>
+      <a href="02-data-model.html">Next: The Data Model &rarr;</a>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+      <h1>The Big Picture</h1>
+      <p class="lead">What Requests does, who uses it, and how all the pieces fit together.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 1: What Requests Does -->
+    <!-- ============================================ -->
+    <h2><span class="num">01</span> What Requests Does</h2>
+
+    <p>CURA Medical Specialists is a small medical practice in Australia with three referring doctors. When a doctor wants a patient to get an imaging scan — like an MRI of the brain or a CT scan of the chest — they need to send a formal <strong>imaging request</strong> to a radiology practice.</p>
+
+    <p>That request is basically a form that says: "Here is the patient, here is what we need scanned, and here is the doctor ordering it." The radiology practice receives it, books the patient in, and performs the scan.</p>
+
+    <h3>The Old Way</h3>
+
+    <p>Previously, CURA used two separate services stitched together:</p>
+
+    <p><strong>Snapforms</strong> — an online form builder. Staff filled out a web form with the patient's details and what scan was needed. Think of it like Google Forms, but for medical paperwork.</p>
+
+    <p><strong>Make.com</strong> — an automation service. When the form was submitted, Make.com would automatically generate a PDF document and send it to the radiology practice via email or fax. Think of it like a robot assistant that watches for new form submissions and carries out a checklist of steps.</p>
+
+    <p>This worked, but it had real problems:</p>
+
+    <table>
+      <thead>
+        <tr><th>Problem</th><th>What it meant</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>No control over PDF layout</td><td>The generated PDF looked however Snapforms decided. You couldn't customise it to look professional or match CURA's branding.</td></tr>
+        <tr><td>Credits per execution</td><td>Make.com charges money every time the automation runs. With ~30 requests per week, costs added up.</td></tr>
+        <tr><td>Fragile fax lookup</td><td>Make.com used OpenAI (an AI service) to look up fax numbers. This sometimes broke, causing outages where no requests could be sent.</td></tr>
+        <tr><td>No visibility</td><td>If something failed, there was no easy way to see what went wrong or retry it.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The New Way</h3>
+
+    <p><strong>Requests</strong> replaces both Snapforms and Make.com with a single self-hosted application. "Self-hosted" means it runs on a server that CURA controls, rather than relying on someone else's service. This gives CURA full control over:</p>
+
+    <ul style="margin:0 0 16px 20px;color:var(--text-soft);font-weight:300">
+      <li>The form that staff fill out</li>
+      <li>The PDF that gets generated</li>
+      <li>How and when delivery happens (email or fax)</li>
+      <li>The list of radiology practices and their contact details</li>
+    </ul>
+
+    <p>No more per-execution fees. No more fragile AI lookups. No more mystery failures.</p>
+
+    <!-- MCQ 1 — after Section 1 -->
+    <div class="mcq" id="q1">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 1</span>
+        <span class="mcq-topic">architecture</span>
+      </div>
+      <div class="mcq-question">What replaced the Make.com automation in the new system?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">A</span> A different automation service (Zapier)</button>
+        <button class="mcq-opt" onclick="answer('q1',this,true)"><span class="letter">B</span> BullMQ + a delivery worker (an async job queue)</button>
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">C</span> Manual email sending by staff</button>
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">D</span> A cron job that runs every 5 minutes</button>
+      </div>
+      <div class="mcq-explain" id="q1-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 2: Who Uses It -->
+    <!-- ============================================ -->
+    <h2><span class="num">02</span> Who Uses It</h2>
+
+    <p>Requests has a very small user base. This isn't a public website — it's an internal tool for one medical practice.</p>
+
+    <h3>The Humans</h3>
+
+    <p><strong>Three referring doctors:</strong> Winters, Harrison, and Khalil. Each doctor has <strong>provider numbers</strong> — unique identifiers issued by Medicare that are tied to specific practice locations. One doctor might have different provider numbers for different clinics they work at. Across the three doctors, there are <strong>7 provider number/location combinations</strong> in total.</p>
+
+    <div class="analogy">
+      A provider number is like a work ID badge, but location-specific. If Dr Winters works at both the city clinic and the suburb clinic, she has a separate badge (provider number) for each one. The imaging request needs to include the right badge for where the patient was seen.
+    </div>
+
+    <p><strong>Admin staff</strong> at CURA also use the system. They typically fill out the form on behalf of the doctors, manage the list of radiology practices, manage user accounts, and handle any delivery issues.</p>
+
+    <h3>The Machine</h3>
+
+    <p><strong>Synaptum 8</strong> is CURA's practice management system — the software they use day-to-day to manage patient records, appointments, and billing. Synaptum 8 can also create imaging requests automatically via the <strong>API</strong>.</p>
+
+    <p>An <strong>API</strong> (Application Programming Interface) is a way for one piece of software to talk to another. Instead of a human filling out a form in a browser, Synaptum 8 sends a structured message to Requests saying "create this imaging request with these details." The result is the same — a PDF gets generated and delivered — but no human had to fill out a form.</p>
+
+    <!-- MCQ 2 — after Section 2 -->
+    <div class="mcq" id="q2">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 2</span>
+        <span class="mcq-topic">users</span>
+      </div>
+      <div class="mcq-question">How many referring doctors use the system?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">A</span> 1</button>
+        <button class="mcq-opt" onclick="answer('q2',this,true)"><span class="letter">B</span> 3</button>
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">C</span> 7</button>
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">D</span> 27</button>
+      </div>
+      <div class="mcq-explain" id="q2-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 3: The Architecture -->
+    <!-- ============================================ -->
+    <h2><span class="num">03</span> The Architecture (High-Level Flow)</h2>
+
+    <p>Here's how an imaging request flows through the system, from the moment someone clicks "Submit" to the moment a radiology practice receives it.</p>
+
+    <div class="vflow">
+      <div class="vbox">
+        <span class="vbox-label amber">Step 1</span>
+        <div class="vbox-title">Browser (Next.js)</div>
+        <div class="vbox-desc">Staff member fills out the imaging request form and clicks Submit.</div>
+      </div>
+      <div class="varrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+        <span class="varrow-label">form data sent to server</span>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label blue">Step 2</span>
+        <div class="vbox-title">Server (API Routes + Server Actions)</div>
+        <div class="vbox-desc">Validates the data, parses patient details, generates a PDF, and saves everything to the database. Then puts a "delivery job" onto the queue.</div>
+      </div>
+      <div class="varrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+        <span class="varrow-label">saved &amp; encrypted</span>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label purple">Step 3</span>
+        <div class="vbox-title">PostgreSQL Database (encrypted)</div>
+        <div class="vbox-desc">Stores the request, patient details (encrypted), and delivery status. This is the permanent record.</div>
+      </div>
+      <div class="varrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+        <span class="varrow-label">job added to queue</span>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label cyan">Step 4</span>
+        <div class="vbox-title">BullMQ Queue (Redis)</div>
+        <div class="vbox-desc">A waiting line for delivery jobs. Like a ticket rail in a kitchen — jobs wait here until the worker picks them up.</div>
+      </div>
+      <div class="varrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+        <span class="varrow-label">worker picks up job</span>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label green">Step 5</span>
+        <div class="vbox-title">Delivery Worker (separate process)</div>
+        <div class="vbox-desc">Runs independently. Picks up jobs from the queue and sends them via email or fax. If delivery fails, it retries automatically.</div>
+      </div>
+      <div class="varrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+        <span class="varrow-label">delivered</span>
+      </div>
+      <div class="hflow hflow-3">
+        <div class="vbox">
+          <span class="vbox-label green">email</span>
+          <div class="vbox-title">Nodemailer / SMTP</div>
+          <div class="vbox-desc">Sends via Google Workspace email</div>
+        </div>
+        <div class="harrow">
+          <div class="harrow-stack">
+            <div class="arrow-shaft"></div>
+          </div>
+          <div class="harrow-label">or</div>
+        </div>
+        <div class="vbox">
+          <span class="vbox-label green">fax</span>
+          <div class="vbox-title">Notifyre API</div>
+          <div class="vbox-desc">Sends fax to radiology practice</div>
+        </div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+
+    <p>The key thing to notice: <strong>the user doesn't wait for the email or fax to send.</strong> The moment the server saves the request and puts it on the queue, the user sees a success message. Delivery happens in the background.</p>
+
+    <div class="analogy">
+      A pizza shop. The <strong>front counter</strong> (browser) takes your order. The <strong>kitchen</strong> (server) prepares it and puts a ticket on the rail (queue). The <strong>delivery driver</strong> (worker) picks it up and takes it to your door (email/fax). The driver doesn't hold up the counter — they work independently. If the driver can't find your house the first time, they'll try again.
+    </div>
+
+    <!-- MCQ 3 — after Section 3 -->
+    <div class="mcq" id="q3">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 3</span>
+        <span class="mcq-topic">data flow</span>
+      </div>
+      <div class="mcq-question">When a staff member submits a request, when does the email/fax actually get sent?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">A</span> Immediately, before the user sees a success message</button>
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">B</span> At midnight, in a daily batch</button>
+        <button class="mcq-opt" onclick="answer('q3',this,true)"><span class="letter">C</span> After submission, asynchronously via a background worker</button>
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">D</span> Only when an admin manually triggers it</button>
+      </div>
+      <div class="mcq-explain" id="q3-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 4: The Tech Stack -->
+    <!-- ============================================ -->
+    <h2><span class="num">04</span> The Tech Stack</h2>
+
+    <p>A <strong>tech stack</strong> is the collection of technologies used to build an application. Each piece handles a specific job. Here's what Requests is built with:</p>
+
+    <table>
+      <thead>
+        <tr><th>Technology</th><th>What it does</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Next.js 14</strong> (App Router)</td>
+          <td>The web framework. It handles the pages you see in your browser, the forms you fill out, and the API routes that Synaptum 8 talks to. Think of it as the foundation that everything else is built on.</td>
+        </tr>
+        <tr>
+          <td><strong>PostgreSQL</strong> + <strong>pgcrypto</strong></td>
+          <td>The database. PostgreSQL stores all the data (requests, patients, practices). pgcrypto is an add-on that encrypts sensitive fields — so even if someone got access to the database, patient details would be unreadable scrambled text.</td>
+        </tr>
+        <tr>
+          <td><strong>Prisma</strong></td>
+          <td>An ORM (Object-Relational Mapper). Instead of writing raw database queries, developers write TypeScript code and Prisma translates it into database language. Like a translator between the app and the database.</td>
+        </tr>
+        <tr>
+          <td><strong>Auth.js v5</strong> + <strong>TOTP</strong></td>
+          <td>Handles login and security. TOTP stands for Time-based One-Time Password — those 6-digit codes from an authenticator app. Every user must set up 2FA (two-factor authentication). No exceptions.</td>
+        </tr>
+        <tr>
+          <td><strong>BullMQ</strong> + <strong>Redis</strong></td>
+          <td>The job queue system. BullMQ manages the list of delivery jobs (send this email, send that fax). Redis is the fast in-memory database that BullMQ uses behind the scenes to track the queue.</td>
+        </tr>
+        <tr>
+          <td><strong>React-PDF</strong></td>
+          <td>Generates PDF documents. When a request is submitted, React-PDF creates a professional-looking imaging request form as a PDF file.</td>
+        </tr>
+        <tr>
+          <td><strong>Nodemailer</strong></td>
+          <td>Sends emails. It connects to Google Workspace's email servers (SMTP) to deliver imaging requests by email.</td>
+        </tr>
+        <tr>
+          <td><strong>Notifyre</strong></td>
+          <td>An Australian fax API service. Many radiology practices still use fax (yes, really). Notifyre is ISO 27001 certified and healthcare-compliant — meaning it meets strict security standards.</td>
+        </tr>
+        <tr>
+          <td><strong>BinaryLane VPS</strong></td>
+          <td>The server itself. A VPS (Virtual Private Server) hosted in Sydney, Australia. All data stays on this server, in Australia.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- MCQ 4 — after Section 4 (hosting) -->
+    <div class="mcq" id="q4">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 4</span>
+        <span class="mcq-topic">hosting</span>
+      </div>
+      <div class="mcq-question">Why is the app hosted in Sydney?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">A</span> Because Sydney has the fastest internet in Australia</button>
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">B</span> Because BinaryLane only has Sydney servers</button>
+        <button class="mcq-opt" onclick="answer('q4',this,true)"><span class="letter">C</span> The Australian Privacy Act requires patient data to stay in Australia</button>
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">D</span> To reduce latency for the 3 doctors</button>
+      </div>
+      <div class="mcq-explain" id="q4-explain"></div>
+    </div>
+
+    <!-- MCQ 5 — after Section 4 (tech stack) -->
+    <div class="mcq" id="q5">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 5</span>
+        <span class="mcq-topic">tech stack</span>
+      </div>
+      <div class="mcq-question">What does Notifyre do?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">A</span> Sends push notifications to the doctors' phones</button>
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">B</span> Encrypts patient data in the database</button>
+        <button class="mcq-opt" onclick="answer('q5',this,true)"><span class="letter">C</span> Sends faxes to radiology practices</button>
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">D</span> Monitors the server for downtime</button>
+      </div>
+      <div class="mcq-explain" id="q5-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 5: Key Design Decisions -->
+    <!-- ============================================ -->
+    <h2><span class="num">05</span> Key Design Decisions</h2>
+
+    <p>Three design decisions shape everything about how Requests works. Understanding these will help every other module make sense.</p>
+
+    <div class="callout insight">
+      <strong>Insight: Everything is async.</strong><br>
+      "Async" is short for asynchronous — it means "not happening at the same time." When you submit a request, the delivery (email or fax) does <em>not</em> happen right then and there. Instead, a delivery job is placed on a queue, and a separate background process (the worker) handles it later — usually within seconds, but independently of your browser session. This means the app stays fast and responsive. If a fax takes 30 seconds to send, you don't sit there staring at a loading spinner. You get your confirmation instantly, and the worker handles the rest.
+    </div>
+
+    <div class="callout remember">
+      <strong>Remember: All data stays in Australia.</strong><br>
+      The server is in Sydney. The fax provider (Notifyre) is Australian. Email goes through Google Workspace SMTP. At no point does patient data leave the country. This isn't a nice-to-have — it's a legal requirement under the <strong>Australian Privacy Act</strong>. The practice handles <strong>PHI</strong> (Protected Health Information), and Australian law governs how and where that data can be stored and transmitted.
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning: PHI is everywhere.</strong><br>
+      PHI — Protected Health Information — includes patient names, dates of birth, Medicare numbers, phone numbers, addresses, and anything else that could identify a patient. In this app, PHI is <strong>encrypted at rest</strong> (scrambled in the database so it can't be read without the encryption key), <strong>never written to log files</strong>, and <strong>carefully controlled</strong> in every part of the system. Mishandling PHI isn't just a bug — it's a potential breach of the Privacy Act, which can result in serious legal consequences. Every design decision in this app considers PHI.
+    </div>
+
+    <!-- MCQ 6 — after Section 5 -->
+    <div class="mcq" id="q6">
+      <div class="mcq-header">
+        <span class="mcq-badge">Question 6</span>
+        <span class="mcq-topic">architecture</span>
+      </div>
+      <div class="mcq-question">What happens if a fax fails on the first attempt?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">A</span> The request is marked as failed and an admin must resend it manually</button>
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">B</span> The system switches to email delivery instead</button>
+        <button class="mcq-opt" onclick="answer('q6',this,true)"><span class="letter">C</span> The worker retries with exponential backoff (up to 3 attempts)</button>
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">D</span> The user gets an error message and must resubmit the form</button>
+      </div>
+      <div class="mcq-explain" id="q6-explain"></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottomnav">
+      <a href="index.html">&larr; Back to Hub</a>
+      <span class="mod-score" id="score"></span>
+      <a href="02-data-model.html">Next: The Data Model &rarr;</a>
+    </div>
+
+  </div>
+
+  <script>
+    const MODULE = '01';
+    const TOTAL_QUESTIONS = 6;
+
+    const EXPLANATIONS = {
+      q1: {
+        right: "Correct! BullMQ is an async job queue that replaced Make.com. Instead of a third-party automation service, the app now has its own built-in queue and delivery worker that runs as a separate process.",
+        wrong: "Not quite. Make.com was replaced by BullMQ + a delivery worker — an async job queue built directly into the app. No external automation service needed."
+      },
+      q2: {
+        right: "Correct! CURA has three referring doctors: Winters, Harrison, and Khalil. Between them, they have 7 provider number/location combinations.",
+        wrong: "Not quite. There are 3 referring doctors (Winters, Harrison, Khalil). The number 7 is how many provider number/location combinations they have. The number 27 is how many exam types exist."
+      },
+      q3: {
+        right: "Correct! The email or fax is sent asynchronously by the background worker. The user sees a success message as soon as the request is saved and queued — they don't wait for delivery.",
+        wrong: "Not quite. Delivery happens asynchronously — meaning it happens in the background after submission. The user sees a success message immediately. A separate worker process picks up the job and sends the email or fax."
+      },
+      q4: {
+        right: "Correct! The Australian Privacy Act requires that patient health information (PHI) stays in Australia. Hosting in Sydney ensures compliance with this legal requirement.",
+        wrong: "Not quite. The main reason is legal compliance. The Australian Privacy Act requires patient data to remain in Australia. Hosting in Sydney ensures all PHI stays within the country."
+      },
+      q5: {
+        right: "Correct! Notifyre is an Australian fax API service. Many radiology practices still require fax for receiving imaging requests. Notifyre is ISO 27001 certified and healthcare-compliant.",
+        wrong: "Not quite. Notifyre is a fax service. It sends faxes to radiology practices on behalf of the app. It's Australian, ISO 27001 certified, and meets healthcare compliance requirements."
+      },
+      q6: {
+        right: "Correct! The delivery worker uses exponential backoff — meaning it waits a little longer between each retry (e.g., 30 seconds, then 2 minutes, then 8 minutes). It tries up to 3 times before marking the delivery as failed.",
+        wrong: "Not quite. The worker automatically retries failed deliveries using exponential backoff (increasing wait times between attempts) up to 3 times. The user doesn't need to do anything — retries happen in the background."
+      }
+    };
+
+    function answer(qId, btn, isCorrect) {
+      const mcq = document.getElementById(qId);
+      const buttons = mcq.querySelectorAll('.mcq-opt');
+      const explain = document.getElementById(qId + '-explain');
+
+      // Disable all buttons
+      buttons.forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        btn.classList.add('correct');
+        explain.className = 'mcq-explain show right';
+        explain.innerHTML = '<strong>Correct!</strong> ' + EXPLANATIONS[qId].right.replace('Correct! ', '');
+      } else {
+        btn.classList.add('wrong');
+        // Highlight the correct answer
+        buttons.forEach(b => {
+          if (b.getAttribute('onclick') && b.getAttribute('onclick').includes('true')) {
+            b.classList.add('correct');
+          }
+        });
+        explain.className = 'mcq-explain show wrong';
+        explain.innerHTML = '<strong>Not quite.</strong> ' + EXPLANATIONS[qId].wrong.replace('Not quite. ', '');
+      }
+
+      saveProgress();
+    }
+
+    function saveProgress() {
+      const store = JSON.parse(localStorage.getItem('requests_learning') || '{}');
+      if (!store.modules) store.modules = {};
+      if (!store.modules[MODULE]) store.modules[MODULE] = { answers: {} };
+
+      let correct = 0;
+      let answered = 0;
+
+      for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        const qId = 'q' + i;
+        const mcq = document.getElementById(qId);
+        const buttons = mcq.querySelectorAll('.mcq-opt');
+        let wasAnswered = false;
+        let wasCorrect = false;
+
+        buttons.forEach(b => {
+          if (b.classList.contains('correct') || b.classList.contains('wrong')) {
+            wasAnswered = true;
+          }
+          if (b.classList.contains('correct') && !b.classList.contains('wrong') &&
+              b.getAttribute('onclick') && b.getAttribute('onclick').includes('true') &&
+              b.disabled) {
+            // This is the correct button that was clicked
+          }
+        });
+
+        if (wasAnswered) {
+          answered++;
+          // Check if the user got it right (no 'wrong' class on any button means they picked correctly)
+          let gotWrong = false;
+          buttons.forEach(b => {
+            if (b.classList.contains('wrong')) gotWrong = true;
+          });
+          if (!gotWrong) correct++;
+          store.modules[MODULE].answers[qId] = !gotWrong;
+        }
+      }
+
+      store.modules[MODULE].score = correct;
+      store.modules[MODULE].total = TOTAL_QUESTIONS;
+      store.modules[MODULE].completed = answered === TOTAL_QUESTIONS;
+
+      localStorage.setItem('requests_learning', JSON.stringify(store));
+      updateScore(correct, answered);
+    }
+
+    function updateScore(correct, answered) {
+      const el = document.getElementById('score');
+      if (answered > 0) {
+        el.textContent = correct + ' / ' + answered + ' correct';
+      }
+    }
+
+    function restore() {
+      const store = JSON.parse(localStorage.getItem('requests_learning') || '{}');
+      if (!store.modules || !store.modules[MODULE]) return;
+
+      const answers = store.modules[MODULE].answers || {};
+      let correct = 0;
+      let answered = 0;
+
+      for (const [qId, wasCorrect] of Object.entries(answers)) {
+        const mcq = document.getElementById(qId);
+        if (!mcq) continue;
+
+        const buttons = mcq.querySelectorAll('.mcq-opt');
+        const explain = document.getElementById(qId + '-explain');
+        answered++;
+
+        buttons.forEach(b => {
+          b.disabled = true;
+          const isCorrectOpt = b.getAttribute('onclick') && b.getAttribute('onclick').includes('true');
+          if (isCorrectOpt) {
+            b.classList.add('correct');
+          }
+        });
+
+        if (wasCorrect) {
+          correct++;
+          explain.className = 'mcq-explain show right';
+          explain.innerHTML = '<strong>Correct!</strong> ' + EXPLANATIONS[qId].right.replace('Correct! ', '');
+        } else {
+          // Find which non-correct button was clicked — we can't know exactly, so just show explanation
+          explain.className = 'mcq-explain show wrong';
+          explain.innerHTML = '<strong>Not quite.</strong> ' + EXPLANATIONS[qId].wrong.replace('Not quite. ', '');
+        }
+      }
+
+      updateScore(correct, answered);
+    }
+
+    // Restore previous answers on page load
+    restore();
+  </script>
+</body>
+</html>

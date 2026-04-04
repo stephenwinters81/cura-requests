@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 1 — The Big Picture</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0c0e14;--surface:#161924;--surface2:#1e2130;--surface3:#262a3a;--border:#2c3044;
+    --text:#e8e4df;--text-soft:#b0aaa2;--muted:#7a7670;
+    --amber:#f0a85c;--amber-dim:rgba(240,168,92,0.12);--amber-mid:rgba(240,168,92,0.25);
+    --green:#5ce08a;--green-dim:rgba(92,224,138,0.12);--green-mid:rgba(92,224,138,0.3);
+    --red:#e05c6f;--red-dim:rgba(224,92,111,0.12);--red-mid:rgba(224,92,111,0.3);
+    --blue:#5ca8f0;--blue-dim:rgba(92,168,240,0.12);
+    --cyan:#22d3ee;--purple:#a07cf0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+  .container{max-width:780px;margin:0 auto;padding:48px 28px 80px}
+
+  /* Nav */
+  .topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;animation:fadeUp .5s ease-out}
+  .topnav a{color:var(--text-soft);text-decoration:none;font-size:.88rem;font-weight:400;transition:color .2s}
+  .topnav a:hover{color:var(--amber)}
+  .topnav .mod-indicator{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+
+  /* Header */
+  .header{margin-bottom:44px;animation:fadeUp .5s ease-out .05s both}
+  .header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:900;line-height:1.2;margin-bottom:8px}
+  .header .lead{color:var(--text-soft);font-size:1.05rem;font-weight:300}
+
+  /* Sections */
+  h2{font-size:1.25rem;font-weight:700;margin:48px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border);color:var(--text);position:relative}
+  h2 .num{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.85rem;margin-right:8px}
+  h3{font-size:1.05rem;font-weight:600;margin:28px 0 10px;color:var(--purple)}
+  p{margin-bottom:16px;font-weight:300;color:var(--text-soft)}
+  p strong{color:var(--text);font-weight:500}
+
+  /* Diagram — keep for code-like blocks only */
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin:20px 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;overflow-x:auto;white-space:pre;color:var(--cyan)}
+
+  /* Visual flow diagrams */
+  .vflow{margin:28px 0;display:flex;flex-direction:column;gap:0}
+  .vflow-row{display:flex;align-items:stretch;gap:0}
+  .vflow-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+  .vbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-align:center;position:relative;width:100%}
+  .vbox .vbox-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .vbox .vbox-label.amber{color:var(--amber)}
+  .vbox .vbox-label.blue{color:var(--blue)}
+  .vbox .vbox-label.green{color:var(--green)}
+  .vbox .vbox-label.purple{color:var(--purple)}
+  .vbox .vbox-label.cyan{color:var(--cyan)}
+  .vbox .vbox-title{font-weight:600;font-size:.95rem;margin-bottom:4px}
+  .vbox .vbox-desc{font-size:.82rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .varrow{display:flex;align-items:center;justify-content:center;padding:6px 0;color:var(--muted);font-size:.75rem;gap:6px;font-weight:300}
+  .varrow .arrow-line{width:2px;height:24px;background:var(--border);border-radius:1px}
+  .varrow .arrow-head{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--border)}
+  .varrow-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em}
+
+  /* Horizontal flow */
+  .hflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0;margin:28px 0}
+  .hflow-3{grid-template-columns:1fr auto 1fr auto 1fr}
+  .harrow{display:flex;flex-direction:column;align-items:center;padding:0 10px;color:var(--muted)}
+  .harrow .arrow-shaft{width:32px;height:2px;background:var(--border)}
+  .harrow .arrow-tip{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:6px solid var(--border)}
+  .harrow-stack{display:flex;align-items:center}
+  .harrow-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);text-align:center;margin-top:4px}
+
+  /* Sequence diagram */
+  .seq{margin:28px 0;position:relative}
+  .seq-step{display:grid;grid-template-columns:100px 1fr 100px;align-items:center;gap:12px;margin-bottom:0;padding:10px 0;position:relative}
+  .seq-actor{font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px 8px;border-radius:6px;font-weight:500}
+  .seq-actor.browser{color:var(--amber);background:var(--amber-dim)}
+  .seq-actor.server{color:var(--blue);background:var(--blue-dim)}
+  .seq-actor.worker{color:var(--green);background:var(--green-dim)}
+  .seq-msg{position:relative;padding:10px 14px;border-radius:8px;font-size:.84rem;font-weight:300;color:var(--text-soft)}
+  .seq-msg.right{background:var(--surface);border:1px solid var(--border);margin-left:8px}
+  .seq-msg.right::before{content:'';position:absolute;right:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--border)}
+  .seq-msg.left{background:var(--surface);border:1px solid var(--border);margin-right:8px;text-align:right}
+  .seq-msg.left::after{content:'';position:absolute;left:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left-color:var(--border)}
+  .seq-msg .msg-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--cyan);display:block;margin-bottom:2px}
+  .seq-divider{text-align:center;padding:8px 0;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);position:relative}
+  .seq-divider::before,.seq-divider::after{content:'';position:absolute;top:50%;height:1px;background:var(--border);width:calc(50% - 60px)}
+  .seq-divider::before{left:0}.seq-divider::after{right:0}
+
+  /* Event stream visual */
+  .events{margin:16px 0;display:flex;flex-direction:column;gap:6px}
+  .event-row{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface);border-radius:8px;border-left:3px solid var(--border);font-size:.84rem;animation:fadeUp .3s ease-out both}
+  .event-row:nth-child(1){animation-delay:.1s}.event-row:nth-child(2){animation-delay:.2s}.event-row:nth-child(3){animation-delay:.3s}.event-row:nth-child(4){animation-delay:.4s}
+  .event-row .pct{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;min-width:36px}
+  .event-row .pct.a{color:var(--amber)}.event-row .pct.b{color:var(--blue)}.event-row .pct.c{color:var(--purple)}.event-row .pct.d{color:var(--green)}
+  .event-row .stage{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--cyan);min-width:100px}
+  .event-row .desc{color:var(--text-soft);font-weight:300}
+  .event-row.done{border-left-color:var(--green)}
+
+  /* Pipeline stages */
+  .pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+  .pipe-stage{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;position:relative}
+  .pipe-stage::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:6px solid var(--border)}
+  .pipe-stage:last-child::after{display:none}
+  .pipe-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-bottom:4px}
+  .pipe-name{font-weight:600;font-size:.88rem;margin-bottom:4px}
+  .pipe-desc{font-size:.75rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .pipe-stage:nth-child(1) .pipe-name{color:var(--amber)}
+  .pipe-stage:nth-child(2) .pipe-name{color:var(--blue)}
+  .pipe-stage:nth-child(3) .pipe-name{color:var(--purple)}
+  .pipe-stage:nth-child(4) .pipe-name{color:var(--green)}
+
+  @media(max-width:640px){.hflow{grid-template-columns:1fr;gap:0}.harrow{transform:rotate(90deg);padding:8px 0}.pipeline{grid-template-columns:1fr 1fr}.pipe-stage::after{display:none}.seq-step{grid-template-columns:1fr}}
+
+  /* Callouts */
+  .callout{background:var(--surface2);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem;border-left:3px solid var(--blue);font-weight:300}
+  .callout strong{font-weight:600}
+  .callout.insight{border-left-color:var(--amber)} .callout.insight strong{color:var(--amber)}
+  .callout.remember{border-left-color:var(--green)} .callout.remember strong{color:var(--green)}
+  .callout.warning{border-left-color:var(--red)} .callout.warning strong{color:var(--red)}
+
+  /* Analogy boxes */
+  .analogy{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px dashed var(--amber-mid);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem}
+  .analogy::before{content:'Think of it like...';display:block;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);font-size:.88rem;font-weight:300}
+  th{color:var(--amber);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+  code{font-family:'JetBrains Mono',monospace;background:var(--surface);padding:2px 7px;border-radius:4px;font-size:.84em;color:var(--cyan)}
+
+  /* MCQ */
+  .mcq{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin:32px 0;animation:fadeUp .4s ease-out}
+  .mcq-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .mcq-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:var(--amber-dim);padding:3px 10px;border-radius:100px}
+  .mcq-topic{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted)}
+  .mcq-question{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:16px;line-height:1.5}
+  .mcq-options{display:grid;gap:8px}
+  .mcq-opt{display:block;width:100%;text-align:left;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:400;color:var(--text-soft);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;position:relative}
+  .mcq-opt:hover:not(:disabled){border-color:var(--amber-mid);color:var(--text);background:var(--surface3)}
+  .mcq-opt:disabled{cursor:default;opacity:0.7}
+  .mcq-opt.correct{border-color:var(--green-mid)!important;background:var(--green-dim)!important;color:var(--green)!important;opacity:1!important}
+  .mcq-opt.wrong{border-color:var(--red-mid)!important;background:var(--red-dim)!important;color:var(--red)!important;opacity:1!important}
+  .mcq-opt .letter{font-family:'JetBrains Mono',monospace;font-weight:600;margin-right:8px;font-size:.8rem}
+  .mcq-explain{margin-top:14px;padding:14px 16px;border-radius:8px;font-size:.88rem;line-height:1.6;display:none;font-weight:300}
+  .mcq-explain.show{display:block}
+  .mcq-explain.right{background:var(--green-dim);border:1px solid var(--green-mid);color:var(--green)}
+  .mcq-explain.wrong{background:var(--red-dim);border:1px solid var(--red-mid);color:var(--text-soft)}
+  .mcq-explain strong{font-weight:500}
+
+  /* Bottom nav */
+  .bottomnav{display:flex;justify-content:space-between;align-items:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border)}
+  .bottomnav a{color:var(--amber);text-decoration:none;font-size:.9rem;font-weight:500;transition:opacity .2s}
+  .bottomnav a:hover{opacity:.8}
+  .mod-score{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--muted)}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="topnav">
+    <a href="index.html">&larr; Back to hub</a>
+    <span class="mod-indicator">Module 01 / 06</span>
+  </nav>
+
+  <div class="header">
+    <h1>The Big Picture</h1>
+    <p class="lead">Before we get into the weeds, let's understand what Synaptum 8 actually is and how all its pieces talk to each other.</p>
+  </div>
+
+  <!-- SECTION 1 -->
+  <h2><span class="num">01</span> Three Tiers, One Job</h2>
+
+  <p>Synaptum 8 has <strong>one job</strong>: help a neurologist turn a consultation into a formal letter. Everything in the system exists to support that workflow.</p>
+
+  <p>It's built as three separate layers that talk to each other:</p>
+
+  <div class="hflow hflow-3">
+    <div class="vbox">
+      <span class="vbox-label amber">Your Browser</span>
+      <div class="vbox-title">Next.js :3001</div>
+      <div class="vbox-desc">The UI you click around in. Shows live progress.</div>
+    </div>
+    <div class="harrow">
+      <div class="harrow-stack"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+      <div class="harrow-label">HTTP / SSE</div>
+    </div>
+    <div class="vbox">
+      <span class="vbox-label blue">API Server</span>
+      <div class="vbox-title">FastAPI :8891</div>
+      <div class="vbox-desc">Receives requests, validates, dispatches work.</div>
+      <div style="margin-top:8px;font-size:.72rem;color:var(--muted)">SQLite DB (encrypted PHI)</div>
+    </div>
+    <div class="harrow">
+      <div class="harrow-stack"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+      <div class="harrow-label">Redis queue</div>
+    </div>
+    <div class="vbox">
+      <span class="vbox-label green">Background Workers</span>
+      <div class="vbox-title">Celery</div>
+      <div class="vbox-desc">Does the slow stuff: calls Claude, transcribes audio, OCRs PDFs.</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    A restaurant. The <strong>browser</strong> is the dining room where customers sit. The <strong>API server</strong> is the waiter who takes orders and brings food. The <strong>workers</strong> are the kitchen where the actual cooking happens. The waiter never cooks — they just pass orders to the kitchen and bring the result back.
+  </div>
+
+  <div class="callout insight">
+    <strong>Why not just have the API server do everything?</strong> Because calling Claude takes 10-15 seconds. If the API server waited around for that, it couldn't handle any other requests. Instead, it hands the work to a background worker and says "I'll let the browser know when it's done." That way the server stays fast and responsive.
+  </div>
+
+  <!-- MCQ 1 -->
+  <div class="mcq" id="q1">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">architecture &bull; three-tier</span>
+    </div>
+    <div class="mcq-question">Why does the API server dispatch work to Celery instead of calling Claude directly in the endpoint?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">A</span>Claude's API doesn't support being called from Python</button>
+      <button class="mcq-opt" onclick="answer('q1',this,true)"><span class="letter">B</span>LLM calls take 10-15 seconds and would block the server from handling other requests</button>
+      <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">C</span>It's a security requirement — only workers can access external APIs</button>
+      <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">D</span>The browser can't display results from synchronous requests</button>
+    </div>
+    <div class="mcq-explain" id="q1-explain"></div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <h2><span class="num">02</span> The Consultation Workflow</h2>
+
+  <p>The whole app is structured around a <strong>3-step wizard</strong>. Each step maps to a phase of what the neurologist actually does:</p>
+
+  <div class="hflow hflow-3">
+    <div class="vbox">
+      <span class="vbox-label amber">Step 1</span>
+      <div class="vbox-title">Patient</div>
+      <div class="vbox-desc" style="text-align:left">
+        Who is this consultation for?<br>
+        <span style="color:var(--cyan)">You do:</span> Select or enter patient<br>
+        <span style="color:var(--cyan)">System:</span> Parses PHI automatically
+      </div>
+    </div>
+    <div class="harrow">
+      <div class="harrow-stack"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+    </div>
+    <div class="vbox">
+      <span class="vbox-label blue">Step 2</span>
+      <div class="vbox-title">Sources</div>
+      <div class="vbox-desc" style="text-align:left">
+        What happened in the consultation?<br>
+        <span style="color:var(--cyan)">You do:</span> Record audio, upload PDFs<br>
+        <span style="color:var(--cyan)">System:</span> Transcribes, OCRs, extracts PHI, redacts
+      </div>
+    </div>
+    <div class="harrow">
+      <div class="harrow-stack"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+    </div>
+    <div class="vbox">
+      <span class="vbox-label green">Step 3</span>
+      <div class="vbox-title">Letter</div>
+      <div class="vbox-desc" style="text-align:left">
+        Generate the formal letter<br>
+        <span style="color:var(--cyan)">You do:</span> Answer questions, review, attest<br>
+        <span style="color:var(--cyan)">System:</span> Extracts, drafts, polishes letter
+      </div>
+    </div>
+  </div>
+
+  <h3>What "redacts everything" means</h3>
+  <p>Before <em>any</em> text goes to an LLM (Claude), the system scrubs out personal information. Names become <code>[NAME]</code>, Medicare numbers become <code>[MEDICARE]</code>, addresses become <code>[ADDRESS]</code>. The only personal detail the LLM ever sees is the patient's <strong>first name</strong> (so it can write "I reviewed John today..." in the letter).</p>
+
+  <div class="callout remember">
+    <strong>This is critical to understand:</strong> The LLM never sees raw patient data. It works with redacted text only. This is the PHI containment model — we'll go deep on it in Module 5.
+  </div>
+
+  <!-- MCQ 2 -->
+  <div class="mcq" id="q2">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">workflow &bull; PHI</span>
+    </div>
+    <div class="mcq-question">What personal information does the LLM (Claude) see when generating a letter?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">A</span>Full name, date of birth, and Medicare number</button>
+      <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">B</span>Everything — it needs full context to write a good letter</button>
+      <button class="mcq-opt" onclick="answer('q2',this,true)"><span class="letter">C</span>Only the patient's first name — everything else is redacted with placeholders</button>
+      <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">D</span>Nothing — the letter is generated entirely from templates</button>
+    </div>
+    <div class="mcq-explain" id="q2-explain"></div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <h2><span class="num">03</span> How the Browser Knows What's Happening</h2>
+
+  <p>Here's a question: if the API server hands work to a background worker and immediately returns, how does the browser know when the letter is ready?</p>
+
+  <p>The answer is <strong>SSE (Server-Sent Events)</strong>. Think of it like a one-way radio channel:</p>
+
+  <div class="seq">
+    <div class="seq-step">
+      <div class="seq-actor browser">Browser</div>
+      <div class="seq-msg right">
+        <span class="msg-label">1. POST</span>
+        "Start generating a letter for session X"
+      </div>
+      <div class="seq-actor server">API Server</div>
+    </div>
+    <div class="seq-step">
+      <div class="seq-actor browser">Browser</div>
+      <div class="seq-msg left">
+        <span class="msg-label">2. Response</span>
+        "Here's your task ID: abc123"
+      </div>
+      <div class="seq-actor server">Server</div>
+    </div>
+    <div class="seq-divider">server dispatches to celery worker</div>
+    <div class="seq-step">
+      <div class="seq-actor browser">Browser</div>
+      <div class="seq-msg right">
+        <span class="msg-label">3. SSE Stream</span>
+        "I'll watch task abc123 for updates"
+      </div>
+      <div class="seq-actor worker">Worker</div>
+    </div>
+    <div class="seq-divider">worker publishes progress via redis</div>
+    <div class="events">
+      <div class="event-row"><span class="pct a">10%</span><span class="stage">organizing</span><span class="desc">Reading and structuring the sources</span></div>
+      <div class="event-row"><span class="pct b">40%</span><span class="stage">generating</span><span class="desc">Drafting the letter</span></div>
+      <div class="event-row"><span class="pct c">70%</span><span class="stage">refining</span><span class="desc">Polishing tone and grammar</span></div>
+      <div class="event-row done"><span class="pct d">100%</span><span class="stage">complete</span><span class="desc">Done! Letter ID: xyz — browser fetches the result</span></div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    Ordering pizza online. You place the order (step 1), get a confirmation number (step 2), then the pizza tracker shows you live updates — "preparing", "in the oven", "out for delivery" (steps 3-4). You don't keep calling the store to ask "is it ready yet?"
+  </div>
+
+  <!-- MCQ 3 -->
+  <div class="mcq" id="q3">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">architecture &bull; SSE</span>
+    </div>
+    <div class="mcq-question">How does the browser find out when a Celery task (like letter generation) finishes?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">A</span>It keeps sending GET requests every 2 seconds until it gets a result (polling)</button>
+      <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">B</span>The Celery worker calls the browser directly when it's done</button>
+      <button class="mcq-opt" onclick="answer('q3',this,true)"><span class="letter">C</span>SSE — the browser opens a stream and the server pushes progress events as the worker publishes them via Redis</button>
+      <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">D</span>WebSocket — a persistent two-way connection between browser and worker</button>
+    </div>
+    <div class="mcq-explain" id="q3-explain"></div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <h2><span class="num">04</span> The Letter Pipeline</h2>
+
+  <p>This is the heart of the system. When you click "Generate Letter", <strong>four separate LLM calls</strong> happen in sequence:</p>
+
+  <div class="pipeline">
+    <div class="pipe-stage">
+      <div class="pipe-num">Stage 1</div>
+      <div class="pipe-name">Extract</div>
+      <div class="pipe-desc">Reads transcript + docs, organizes into structured sections</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="pipe-num">Stage 2</div>
+      <div class="pipe-name">Draft</div>
+      <div class="pipe-desc">Writes the letter from clean, structured data</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="pipe-num">Stage 3</div>
+      <div class="pipe-name">Polish</div>
+      <div class="pipe-desc">Refines tone, grammar, Australian English</div>
+    </div>
+    <div class="pipe-stage">
+      <div class="pipe-num">Stage 4</div>
+      <div class="pipe-name">Actions</div>
+      <div class="pipe-desc">Extracts follow-up tasks (optional)</div>
+    </div>
+  </div>
+
+  <p>Each stage is a <strong>separate LLM call</strong> — 4 calls total. Breaking it up gives better results because each call has a focused job.</p>
+
+  <div class="callout insight">
+    <strong>Why not do it all in one LLM call?</strong> Breaking it into stages gives better results. Each stage has a focused job with its own prompt. It also means you can cache stage 1's output (the extraction) — which is exactly what the interview system does. The extraction runs once during the interview, then gets reused when the letter is generated.
+  </div>
+
+  <!-- MCQ 4 -->
+  <div class="mcq" id="q4">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">pipeline &bull; caching</span>
+    </div>
+    <div class="mcq-question">What happens to the extraction stage when you generate a second letter for the same consultation?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">A</span>It runs again from scratch — each letter needs fresh extraction</button>
+      <button class="mcq-opt" onclick="answer('q4',this,true)"><span class="letter">B</span>It's skipped — the cached extraction from the interview is reused</button>
+      <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">C</span>It runs but faster because the LLM remembers the previous result</button>
+      <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">D</span>The user has to manually re-upload their sources</button>
+    </div>
+    <div class="mcq-explain" id="q4-explain"></div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <h2><span class="num">05</span> The File Layout (Where Things Live)</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0">
+    <div class="vbox" style="text-align:left">
+      <span class="vbox-label amber">api/ — Backend (Python)</span>
+      <div style="font-size:.84rem;color:var(--text-soft);font-weight:300;line-height:1.7;margin-top:8px">
+        <code style="color:var(--amber)">main.py</code> — starts the server<br>
+        <code style="color:var(--muted)">core/</code> — config, security, middleware<br>
+        <code style="color:var(--muted)">db/</code> — models and connections<br>
+        <code style="color:var(--blue)">endpoints/</code> — the "waiter" layer<br>
+        <code style="color:var(--green)">services/</code> — the "kitchen" layer<br>
+        <code style="color:var(--purple)">tasks/</code> — the "slow cooking" layer
+      </div>
+    </div>
+    <div class="vbox" style="text-align:left">
+      <span class="vbox-label blue">web/ — Frontend (TypeScript)</span>
+      <div style="font-size:.84rem;color:var(--text-soft);font-weight:300;line-height:1.7;margin-top:8px">
+        <code style="color:var(--amber)">app/</code> — pages and layouts<br>
+        <code style="color:var(--muted)">components/</code> — UI components<br>
+        <code style="color:var(--blue)">lib/api/</code> — talks to the backend<br>
+        <code style="color:var(--green)">lib/stores/</code> — app state<br>
+        <code style="color:var(--purple)">lib/hooks/</code> — reusable logic (SSE, etc.)
+      </div>
+    </div>
+  </div>
+
+  <p>Don't worry about memorising this. The key insight is the <strong>three layers in the backend</strong>: endpoints (receive requests) → services (do the work) → models (touch the database). We'll go deep on this in Module 2.</p>
+
+  <!-- MCQ 5 -->
+  <div class="mcq" id="q5">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">structure &bull; layers</span>
+    </div>
+    <div class="mcq-question">Which folder contains the business logic — the code that actually does things like creating letters, managing patients, and handling encryption?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">A</span>api/app/api/v1/endpoints/ — that's where the API logic lives</button>
+      <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">B</span>api/app/core/ — it has security and config, so that's the main logic</button>
+      <button class="mcq-opt" onclick="answer('q5',this,true)"><span class="letter">C</span>api/app/services/ — services own all business logic and database changes</button>
+      <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">D</span>api/app/tasks/ — that's where the heavy processing happens</button>
+    </div>
+    <div class="mcq-explain" id="q5-explain"></div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <h2><span class="num">06</span> The External Services</h2>
+
+  <p>Your system doesn't do everything itself. It calls <strong>five external services</strong>:</p>
+
+  <table>
+    <tr><th>Service</th><th>What it does</th><th>Where it runs</th></tr>
+    <tr><td><strong>Claude API</strong></td><td>Generates letters, extracts clinical info, creates interview questions</td><td>Anthropic's cloud (or AWS Bedrock)</td></tr>
+    <tr><td><strong>MedASR+</strong></td><td>Medical speech recognition — turns consultation audio into text</td><td>Local Docker container, port 8002</td></tr>
+    <tr><td><strong>AssemblyAI</strong></td><td>Alternative transcription service (cloud-based fallback)</td><td>Cloud API</td></tr>
+    <tr><td><strong>PaddleOCR</strong></td><td>Reads text from uploaded PDFs and scanned documents</td><td>Local Docker container, port 8010</td></tr>
+    <tr><td><strong>Ollama</strong></td><td>Local LLM fallback (runs smaller models when Claude is unavailable)</td><td>Local Docker container, port 11434</td></tr>
+  </table>
+
+  <p>Each of these can fail or go down. That's why every external call goes through a <strong>circuit breaker</strong> — a safety mechanism that stops the system from hammering a dead service. We'll cover circuit breakers in Module 5.</p>
+
+  <!-- MCQ 6 -->
+  <div class="mcq" id="q6">
+    <div class="mcq-header">
+      <span class="mcq-badge">Checkpoint</span>
+      <span class="mcq-topic">services &bull; resilience</span>
+    </div>
+    <div class="mcq-question">What is MedASR+ and where does it run?</div>
+    <div class="mcq-options">
+      <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">A</span>A cloud API for generating medical letters</button>
+      <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">B</span>A browser plugin that records audio</button>
+      <button class="mcq-opt" onclick="answer('q6',this,true)"><span class="letter">C</span>Medical speech recognition — runs locally in a Docker container on port 8002</button>
+      <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">D</span>A database service for storing patient records</button>
+    </div>
+    <div class="mcq-explain" id="q6-explain"></div>
+  </div>
+
+  <!-- Score + nav -->
+  <div class="bottomnav">
+    <a href="index.html">&larr; Hub</a>
+    <span class="mod-score" id="modScore"></span>
+    <a href="02-backend-layers.html">Module 2: Layers &rarr;</a>
+  </div>
+</div>
+
+<script>
+const MODULE = '01';
+const EXPLANATIONS = {
+  q1: { right: "Exactly. LLM calls are slow (10-15 seconds). If the endpoint waited, the server couldn't handle other requests. Dispatching to Celery keeps the API fast.", wrong: "Not quite. The real reason is performance — LLM calls take 10-15 seconds. If the API server waited for each one, it couldn't serve other users. Celery handles the slow work in the background." },
+  q2: { right: "Yes! The redaction service scrubs everything except the patient's first name. The LLM works with [NAME], [MEDICARE], [ADDRESS] placeholders. Only the first name is re-injected so the letter reads naturally.", wrong: "Not quite. The system redacts all PHI before any LLM call. Names become [NAME], Medicare numbers become [MEDICARE], etc. Only the patient's first name is passed through so the letter can say 'I reviewed John today...'." },
+  q3: { right: "That's it. The browser opens an SSE (Server-Sent Events) stream. The worker publishes progress to Redis, the API server picks it up and pushes it down the stream. One-way, real-time, no polling needed.", wrong: "Not quite. The system uses SSE (Server-Sent Events) — a one-way stream from server to browser. The worker publishes progress to Redis, the API server pushes it to the browser. No polling, no WebSockets." },
+  q4: { right: "Correct! The extraction was cached on the LetterInterview record during the interview phase. When generate_letter runs, it finds interview.extracted_info already populated and skips Stage 1. This saves an entire LLM call (~10 seconds).", wrong: "Actually, the extraction is cached. During the interview phase, the extraction runs and its output is stored on the LetterInterview record. When generate_letter runs later, it finds this cached result and skips Stage 1 entirely — saving ~10 seconds." },
+  q5: { right: "Nailed it. Services own ALL business logic — creating letters, managing patients, encrypting data, committing to the database. Endpoints are just thin wrappers. Tasks are just orchestrators.", wrong: "Not quite. The services/ folder is where all business logic lives. Endpoints just validate and delegate. Tasks just orchestrate slow work. Core is framework-level utilities. Services are the brain." },
+  q6: { right: "Right. MedASR+ is a medical speech recognition service running locally in Docker on port 8002. It turns consultation audio into text. Remember to use 127.0.0.1 instead of localhost on Windows!", wrong: "MedASR+ is a medical speech recognition service — it turns consultation audio into text. It runs locally in a Docker container on port 8002. It's not cloud-based or browser-based." },
+};
+
+let results = {};
+
+function answer(qId, btn, isCorrect) {
+  if (results[qId] !== undefined) return;
+  results[qId] = isCorrect;
+
+  const mcq = document.getElementById(qId);
+  const opts = mcq.querySelectorAll('.mcq-opt');
+  opts.forEach(o => {
+    o.disabled = true;
+    if (o === btn) o.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect && o.onclick && o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+  });
+
+  const explain = document.getElementById(qId + '-explain');
+  const data = EXPLANATIONS[qId];
+  explain.textContent = isCorrect ? data.right : data.wrong;
+  explain.className = 'mcq-explain show ' + (isCorrect ? 'right' : 'wrong');
+
+  saveProgress();
+  updateScore();
+}
+
+function saveProgress() {
+  const perf = JSON.parse(localStorage.getItem('s8_learning') || '{}');
+  perf[MODULE] = Object.entries(results).map(([id, correct]) => ({
+    id: MODULE + '-' + id,
+    topic: document.querySelector('#' + id + ' .mcq-topic')?.textContent || '',
+    question: document.querySelector('#' + id + ' .mcq-question')?.textContent || '',
+    correct: correct,
+  }));
+  localStorage.setItem('s8_learning', JSON.stringify(perf));
+}
+
+function updateScore() {
+  const answered = Object.values(results);
+  if (answered.length === 0) return;
+  const correct = answered.filter(Boolean).length;
+  document.getElementById('modScore').textContent = correct + ' / ' + answered.length + ' correct';
+}
+
+// Restore previous answers
+function restore() {
+  const perf = JSON.parse(localStorage.getItem('s8_learning') || '{}');
+  if (!perf[MODULE]) return;
+  perf[MODULE].forEach(q => {
+    const qId = q.id.replace(MODULE + '-', '');
+    results[qId] = q.correct;
+    const mcq = document.getElementById(qId);
+    if (!mcq) return;
+    const opts = mcq.querySelectorAll('.mcq-opt');
+    opts.forEach(o => o.disabled = true);
+    // We can't fully restore visual state of which option was picked, but we can show the explanation
+    const explain = document.getElementById(qId + '-explain');
+    const data = EXPLANATIONS[qId];
+    if (data) {
+      explain.textContent = q.correct ? data.right : data.wrong;
+      explain.className = 'mcq-explain show ' + (q.correct ? 'right' : 'wrong');
+    }
+  });
+  updateScore();
+}
+restore();
+</script>
+</body>
+</html>

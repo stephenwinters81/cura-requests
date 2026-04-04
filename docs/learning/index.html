@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requests — Learn Your System</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #161924;
+    --surface2: #1e2130;
+    --surface3: #262a3a;
+    --border: #2c3044;
+    --text: #e8e4df;
+    --text-soft: #b0aaa2;
+    --muted: #7a7670;
+    --amber: #f0a85c;
+    --amber-dim: rgba(240,168,92,0.12);
+    --amber-mid: rgba(240,168,92,0.25);
+    --green: #5ce08a;
+    --green-dim: rgba(92,224,138,0.12);
+    --red: #e05c6f;
+    --red-dim: rgba(224,92,111,0.12);
+    --blue: #5ca8f0;
+    --blue-dim: rgba(92,168,240,0.12);
+    --purple: #a07cf0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: 4rem 0 3rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.03em;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--text-soft);
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    line-height: 1.7;
+  }
+
+  /* Progress Dashboard */
+  .dashboard {
+    padding: 2.5rem 0;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .progress-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--green));
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .dash-cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .dash-cell.completed {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .dash-cell.in-progress {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--amber);
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  /* Module Cards */
+  .modules {
+    padding: 1rem 0 3rem;
+  }
+
+  .modules-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .modules-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .module-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .module-card:hover {
+    border-color: var(--amber);
+    background: var(--surface2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--muted);
+    border-radius: 0 2px 2px 0;
+    transition: background 0.3s ease;
+  }
+
+  .module-card:hover::before {
+    background: var(--amber);
+  }
+
+  .module-card.completed::before {
+    background: var(--green);
+  }
+
+  .module-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 3rem;
+    text-align: center;
+    line-height: 1;
+    padding-top: 0.2rem;
+  }
+
+  .module-card.completed .module-number {
+    color: var(--green);
+  }
+
+  .module-content {
+    flex: 1;
+  }
+
+  .module-content h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+
+  .module-content p {
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 0.6rem;
+  }
+
+  .module-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .module-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .module-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .module-status.not-started {
+    color: var(--muted);
+    background: var(--surface3);
+  }
+
+  .module-status.in-progress {
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  .module-status.completed {
+    color: var(--green);
+    background: var(--green-dim);
+  }
+
+  .module-arrow {
+    color: var(--muted);
+    font-size: 1.2rem;
+    align-self: center;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .module-card:hover .module-arrow {
+    transform: translateX(4px);
+    color: var(--amber);
+  }
+
+  /* Export Section */
+  .export-section {
+    padding: 2rem 0 3rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .export-section h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .export-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-soft);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .export-btn:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  .export-btn.danger:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: var(--red-dim);
+  }
+
+  /* Footer */
+  footer {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  footer p {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.4rem;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 0 1rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 1rem; }
+    .module-card { flex-direction: column; gap: 0.8rem; }
+    .module-number { min-width: auto; }
+    .dashboard-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .export-actions { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">7 modules &middot; ~75 min total</div>
+    <h1>Learn Requests</h1>
+    <p>Seven modules covering how CURA's imaging request system works — from form to fax. Built around the gaps we found in your interview.</p>
+  </section>
+
+  <!-- Progress Dashboard -->
+  <section class="dashboard">
+    <div class="dashboard-header">
+      <h2>Your Progress</h2>
+      <span class="progress-text" id="progressText">0 / 7 complete</span>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+    </div>
+    <div class="dashboard-grid" id="dashboardGrid">
+      <div class="dash-cell" data-module="01">01</div>
+      <div class="dash-cell" data-module="02">02</div>
+      <div class="dash-cell" data-module="03">03</div>
+      <div class="dash-cell" data-module="04">04</div>
+      <div class="dash-cell" data-module="05">05</div>
+      <div class="dash-cell" data-module="06">06</div>
+      <div class="dash-cell" data-module="07">07</div>
+    </div>
+  </section>
+
+  <!-- Module Cards -->
+  <section class="modules">
+    <div class="modules-header">
+      <h2>Modules</h2>
+    </div>
+
+    <a href="01-big-picture.html" class="module-card" data-module="01">
+      <div class="module-number">01</div>
+      <div class="module-content">
+        <h3>The Big Picture</h3>
+        <p>What problem Requests solves, who uses it, and how all the pieces connect from browser to fax machine.</p>
+        <div class="module-meta">
+          <span class="module-time">~10 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="02-data-model.html" class="module-card" data-module="02">
+      <div class="module-number">02</div>
+      <div class="module-content">
+        <h3>The Data Model</h3>
+        <p>Six database tables, their relationships, and what gets stored where — from patients to delivery jobs.</p>
+        <div class="module-meta">
+          <span class="module-time">~12 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="03-request-lifecycle.html" class="module-card" data-module="03">
+      <div class="module-number">03</div>
+      <div class="module-content">
+        <h3>The Request Lifecycle</h3>
+        <p>Follow a request from form submit through PHI parsing, PDF generation, queue, and out the door.</p>
+        <div class="module-meta">
+          <span class="module-time">~12 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="04-security.html" class="module-card" data-module="04">
+      <div class="module-number">04</div>
+      <div class="module-content">
+        <h3>Security &amp; PHI Protection</h3>
+        <p>Field-level encryption, mandatory MFA, Australian Privacy Act compliance, and the audit trail.</p>
+        <div class="module-meta">
+          <span class="module-time">~10 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="05-background-jobs.html" class="module-card" data-module="05">
+      <div class="module-number">05</div>
+      <div class="module-content">
+        <h3>Background Jobs &amp; Delivery</h3>
+        <p>BullMQ queues, Redis, the delivery worker, email and fax sending, retries, and webhook confirmations.</p>
+        <div class="module-meta">
+          <span class="module-time">~11 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="06-api-layer.html" class="module-card" data-module="06">
+      <div class="module-number">06</div>
+      <div class="module-content">
+        <h3>The API Layer</h3>
+        <p>The REST API that lets Synaptum 8 create requests programmatically — keys, scopes, rate limits.</p>
+        <div class="module-meta">
+          <span class="module-time">~10 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+
+    <a href="07-frontend.html" class="module-card" data-module="07">
+      <div class="module-number">07</div>
+      <div class="module-content">
+        <h3>The Frontend</h3>
+        <p>Next.js pages, the imaging request form, admin dashboards, and how the UI talks to the server.</p>
+        <div class="module-meta">
+          <span class="module-time">~10 min</span>
+          <span class="module-status not-started">not started</span>
+        </div>
+      </div>
+      <div class="module-arrow">&#8594;</div>
+    </a>
+  </section>
+
+  <!-- Export Section -->
+  <section class="export-section">
+    <h2>Data</h2>
+    <div class="export-actions">
+      <button class="export-btn" onclick="exportProgress()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 12v1.5h10V12"/></svg>
+        Export Progress
+      </button>
+      <button class="export-btn danger" onclick="resetProgress()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        Reset All Progress
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Built from your knowledge-gap interview &bull; 3 Apr 2026</p>
+  </footer>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'requests_learning';
+  const TOTAL_MODULES = 7;
+
+  const moduleNames = {
+    '01': 'The Big Picture',
+    '02': 'The Data Model',
+    '03': 'The Request Lifecycle',
+    '04': 'Security & PHI Protection',
+    '05': 'Background Jobs & Delivery',
+    '06': 'The API Layer',
+    '07': 'The Frontend'
+  };
+
+  function getProgress() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveProgress(progress) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function updateUI() {
+    const progress = getProgress();
+    let completed = 0;
+
+    // Update dashboard cells and module cards
+    for (let i = 1; i <= TOTAL_MODULES; i++) {
+      const key = String(i).padStart(2, '0');
+      const cell = document.querySelector(`.dash-cell[data-module="${key}"]`);
+      const card = document.querySelector(`.module-card[data-module="${key}"]`);
+      const status = progress[key];
+
+      if (cell) {
+        cell.classList.remove('completed', 'in-progress');
+        if (status === 'completed') {
+          cell.classList.add('completed');
+          cell.innerHTML = '&#10003;';
+          completed++;
+        } else if (status === 'in-progress') {
+          cell.classList.add('in-progress');
+        }
+      }
+
+      if (card) {
+        card.classList.remove('completed');
+        const statusEl = card.querySelector('.module-status');
+        if (status === 'completed') {
+          card.classList.add('completed');
+          statusEl.className = 'module-status completed';
+          statusEl.textContent = 'completed';
+        } else if (status === 'in-progress') {
+          statusEl.className = 'module-status in-progress';
+          statusEl.textContent = 'in progress';
+        } else {
+          statusEl.className = 'module-status not-started';
+          statusEl.textContent = 'not started';
+        }
+      }
+    }
+
+    // Update progress bar
+    const pct = Math.round((completed / TOTAL_MODULES) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${completed} / ${TOTAL_MODULES} complete`;
+  }
+
+  function exportProgress() {
+    const progress = getProgress();
+    const completed = Object.entries(progress)
+      .filter(([, v]) => v === 'completed')
+      .map(([k]) => moduleNames[k] || k);
+
+    const inProgress = Object.entries(progress)
+      .filter(([, v]) => v === 'in-progress')
+      .map(([k]) => moduleNames[k] || k);
+
+    const completedCount = completed.length;
+
+    let report = '=== Requests Architecture Learning ===\n';
+    report += `Exported: ${new Date().toLocaleString()}\n`;
+    report += `Progress: ${completedCount} / ${TOTAL_MODULES} modules complete (${Math.round((completedCount / TOTAL_MODULES) * 100)}%)\n\n`;
+
+    if (completed.length) {
+      report += 'COMPLETED:\n';
+      completed.forEach(m => report += `  [x] ${m}\n`);
+      report += '\n';
+    }
+
+    if (inProgress.length) {
+      report += 'IN PROGRESS:\n';
+      inProgress.forEach(m => report += `  [~] ${m}\n`);
+      report += '\n';
+    }
+
+    const notStarted = Object.keys(moduleNames).filter(k => !progress[k] || progress[k] === 'not-started');
+    if (notStarted.length) {
+      report += 'NOT STARTED:\n';
+      notStarted.forEach(k => report += `  [ ] ${moduleNames[k]}\n`);
+    }
+
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'requests-learning-progress.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast('Progress exported');
+  }
+
+  function resetProgress() {
+    if (confirm('Reset all progress? This cannot be undone.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      updateUI();
+      showToast('Progress reset');
+    }
+  }
+
+  // Init
+  updateUI();
+</script>
+
+</body>
+</html>

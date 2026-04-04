@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synaptum 8 — Learn Your System</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #161924;
+    --surface2: #1e2130;
+    --surface3: #262a3a;
+    --border: #2c3044;
+    --text: #e8e4df;
+    --text-soft: #b0aaa2;
+    --muted: #7a7670;
+    --amber: #f0a85c;
+    --amber-dim: rgba(240,168,92,0.12);
+    --amber-mid: rgba(240,168,92,0.25);
+    --green: #5ce08a;
+    --green-dim: rgba(92,224,138,0.12);
+    --red: #e05c6f;
+    --red-dim: rgba(224,92,111,0.12);
+    --blue: #5ca8f0;
+    --blue-dim: rgba(92,168,240,0.12);
+    --purple: #a07cf0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s ease-out;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--text-soft);
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  /* Score dashboard */
+  .dashboard {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s ease-out 0.1s both;
+  }
+  .dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .dash-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-soft);
+  }
+  .dash-score {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .dash-score .num {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--amber);
+  }
+  .dash-score .denom {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .dash-bar-wrap {
+    background: var(--surface2);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .dash-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), #f0c85c);
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    width: 0%;
+  }
+  .dash-modules {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .dash-mod {
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid transparent;
+    transition: all 0.3s;
+  }
+  .dash-mod.started { color: var(--blue); border-color: rgba(92,168,240,0.2); }
+  .dash-mod.done { color: var(--green); border-color: rgba(92,224,138,0.2); background: var(--green-dim); }
+  .dash-mod .mod-num { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* Export button */
+  .export-section {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s ease-out 0.15s both;
+  }
+  .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .export-btn:hover { background: var(--amber-mid); transform: translateY(-1px); }
+  .export-btn.copied { color: var(--green); border-color: rgba(92,224,138,0.3); background: var(--green-dim); }
+  .export-hint {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 300;
+  }
+
+  /* Module cards */
+  .modules { display: grid; gap: 14px; animation: fadeUp 0.6s ease-out 0.2s both; }
+  .module-card {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .module-card:hover {
+    border-color: var(--amber-mid);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .module-card:hover::before { background: var(--amber); }
+  .module-card.completed::before { background: var(--green); }
+
+  .card-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--surface3);
+    text-align: center;
+    line-height: 1;
+  }
+  .module-card:hover .card-num { color: var(--amber); }
+  .module-card.completed .card-num { color: var(--green); }
+
+  .card-body h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .card-body p { font-size: 0.85rem; color: var(--text-soft); font-weight: 300; line-height: 1.5; }
+
+  .card-meta {
+    text-align: right;
+    min-width: 70px;
+  }
+  .card-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: block;
+  }
+  .card-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--green);
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 300;
+    animation: fadeUp 0.6s ease-out 0.3s both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 2rem; }
+    .module-card { grid-template-columns: 40px 1fr; }
+    .card-meta { display: none; }
+    .dash-modules { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <div class="hero-badge">Architecture Field Guide</div>
+    <h1>Learn Your System</h1>
+    <p>Six modules covering everything that makes Synaptum 8 tick. Built around the gaps we found in your interview.</p>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <h2>Your Progress</h2>
+      <div class="dash-score">
+        <span class="num" id="totalScore">0</span>
+        <span class="denom">/ <span id="totalQuestions">0</span> questions</span>
+      </div>
+    </div>
+    <div class="dash-bar-wrap">
+      <div class="dash-bar" id="dashBar"></div>
+    </div>
+    <div class="dash-modules" id="dashModules">
+      <div class="dash-mod" data-mod="01"><span class="mod-num">1</span>Big Picture</div>
+      <div class="dash-mod" data-mod="02"><span class="mod-num">2</span>Layers</div>
+      <div class="dash-mod" data-mod="03"><span class="mod-num">3</span>Database</div>
+      <div class="dash-mod" data-mod="04"><span class="mod-num">4</span>Workers</div>
+      <div class="dash-mod" data-mod="05"><span class="mod-num">5</span>Security</div>
+      <div class="dash-mod" data-mod="06"><span class="mod-num">6</span>Frontend</div>
+    </div>
+  </div>
+
+  <div class="export-section">
+    <button class="export-btn" id="exportBtn" onclick="exportPerformance()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy Performance JSON
+    </button>
+    <span class="export-hint">Paste this into Claude to generate a supplementary learning pack based on your weak spots</span>
+  </div>
+
+  <div class="modules">
+    <a class="module-card" href="01-big-picture.html" data-mod="01">
+      <div class="card-num">01</div>
+      <div class="card-body">
+        <h3>The Big Picture</h3>
+        <p>How the three tiers connect, the consultation workflow, and where data flows from recording to letter.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~10 min</span>
+        <span class="card-score" id="score-01"></span>
+      </div>
+    </a>
+    <a class="module-card" href="02-backend-layers.html" data-mod="02">
+      <div class="card-num">02</div>
+      <div class="card-body">
+        <h3>Dependency Layers &amp; Services</h3>
+        <p>The one-way import rule that holds the whole backend together, and how the 18 services are structured.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~12 min</span>
+        <span class="card-score" id="score-02"></span>
+      </div>
+    </a>
+    <a class="module-card" href="03-database.html" data-mod="03">
+      <div class="card-num">03</div>
+      <div class="card-body">
+        <h3>Database, Models &amp; Encryption</h3>
+        <p>Two database engines, 24 models, column-level PHI encryption, and the no-auto-commit rule.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~10 min</span>
+        <span class="card-score" id="score-03"></span>
+      </div>
+    </a>
+    <a class="module-card" href="04-celery.html" data-mod="04">
+      <div class="card-num">04</div>
+      <div class="card-body">
+        <h3>Celery Workers &amp; Task Queues</h3>
+        <p>Two worker pools, task routing, the letter generation pipeline, and how progress reaches the browser.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~12 min</span>
+        <span class="card-score" id="score-04"></span>
+      </div>
+    </a>
+    <a class="module-card" href="05-security.html" data-mod="05">
+      <div class="card-num">05</div>
+      <div class="card-body">
+        <h3>Security &amp; PHI Containment</h3>
+        <p>JWT auth, 2FA, circuit breakers, audit logging, audio encryption, and the rules that keep patient data safe.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~15 min</span>
+        <span class="card-score" id="score-05"></span>
+      </div>
+    </a>
+    <a class="module-card" href="06-frontend.html" data-mod="06">
+      <div class="card-num">06</div>
+      <div class="card-body">
+        <h3>Frontend Architecture</h3>
+        <p>The API client, three Zustand stores, wizard flow, session isolation, and how the UI talks to the backend.</p>
+      </div>
+      <div class="card-meta">
+        <span class="card-time">~12 min</span>
+        <span class="card-score" id="score-06"></span>
+      </div>
+    </a>
+  </div>
+
+  <div class="footer">
+    <p>Built from your knowledge-gap interview &bull; 3 Apr 2026</p>
+    <p style="margin-top:4px;">Complete all 6 modules, then export your performance JSON and paste it into Claude for a targeted follow-up pack.</p>
+  </div>
+</div>
+
+<script>
+function getPerformance() {
+  try { return JSON.parse(localStorage.getItem('s8_learning') || '{}'); } catch { return {}; }
+}
+
+function updateDashboard() {
+  const perf = getPerformance();
+  let totalCorrect = 0, totalQs = 0;
+
+  document.querySelectorAll('.dash-mod').forEach(el => {
+    const mod = el.dataset.mod;
+    const modData = perf[mod];
+    if (modData) {
+      const correct = modData.filter(q => q.correct).length;
+      const total = modData.length;
+      totalCorrect += correct;
+      totalQs += total;
+      el.classList.add(correct === total ? 'done' : 'started');
+      const scoreEl = document.getElementById('score-' + mod);
+      if (scoreEl) scoreEl.textContent = correct + '/' + total;
+      const card = document.querySelector('.module-card[data-mod="' + mod + '"]');
+      if (card && correct === total) card.classList.add('completed');
+    }
+  });
+
+  document.getElementById('totalScore').textContent = totalCorrect;
+  document.getElementById('totalQuestions').textContent = totalQs || '—';
+  const pct = totalQs > 0 ? (totalCorrect / totalQs * 100) : 0;
+  document.getElementById('dashBar').style.width = pct + '%';
+}
+
+function exportPerformance() {
+  const perf = getPerformance();
+  const modules = {};
+  let totalCorrect = 0, totalQs = 0;
+  const moduleNames = {
+    '01': 'The Big Picture',
+    '02': 'Dependency Layers & Services',
+    '03': 'Database, Models & Encryption',
+    '04': 'Celery Workers & Task Queues',
+    '05': 'Security & PHI Containment',
+    '06': 'Frontend Architecture'
+  };
+
+  for (const [mod, questions] of Object.entries(perf)) {
+    const correct = questions.filter(q => q.correct).length;
+    totalCorrect += correct;
+    totalQs += questions.length;
+    modules[mod] = {
+      title: moduleNames[mod] || 'Module ' + mod,
+      score: correct,
+      total: questions.length,
+      percentage: Math.round(correct / questions.length * 100),
+      questions: questions
+    };
+  }
+
+  const exportData = {
+    system: 'Synaptum 8 Architecture Learning',
+    exportedAt: new Date().toISOString(),
+    overallScore: totalCorrect,
+    overallTotal: totalQs,
+    overallPercentage: totalQs > 0 ? Math.round(totalCorrect / totalQs * 100) : 0,
+    modules: modules,
+    instruction: 'The user completed architecture learning modules for their Synaptum 8 project. Analyse their wrong answers to identify weak areas and generate a supplementary learning pack targeting those gaps. Focus on topics where they scored below 70%.'
+  };
+
+  const json = JSON.stringify(exportData, null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    const btn = document.getElementById('exportBtn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy Performance JSON';
+    }, 2000);
+  });
+}
+
+updateDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- Color System: Clinical precision meets refined minimalism --- */
+
+  /* Base / Background */
+  --color-background: oklch(0.985 0.002 250);
+  --color-foreground: oklch(0.145 0.015 250);
+
+  /* Card / Surface */
+  --color-card: oklch(0.995 0.001 250);
+  --color-card-foreground: oklch(0.145 0.015 250);
+
+  /* Popover */
+  --color-popover: oklch(0.995 0.001 250);
+  --color-popover-foreground: oklch(0.145 0.015 250);
+
+  /* Primary: Sharp teal accent */
+  --color-primary: oklch(0.55 0.14 185);
+  --color-primary-foreground: oklch(0.985 0.002 185);
+
+  /* Secondary: Muted blue-gray */
+  --color-secondary: oklch(0.92 0.008 250);
+  --color-secondary-foreground: oklch(0.25 0.015 250);
+
+  /* Muted */
+  --color-muted: oklch(0.94 0.006 250);
+  --color-muted-foreground: oklch(0.52 0.015 250);
+
+  /* Accent */
+  --color-accent: oklch(0.92 0.008 250);
+  --color-accent-foreground: oklch(0.25 0.015 250);
+
+  /* Destructive: Clinical red */
+  --color-destructive: oklch(0.55 0.2 25);
+  --color-destructive-foreground: oklch(0.985 0.005 25);
+
+  /* Success: Clinical green */
+  --color-success: oklch(0.55 0.15 155);
+  --color-success-foreground: oklch(0.985 0.005 155);
+
+  /* Warning: Clinical amber */
+  --color-warning: oklch(0.65 0.16 75);
+  --color-warning-foreground: oklch(0.2 0.04 75);
+
+  /* Border / Input / Ring */
+  --color-border: oklch(0.88 0.008 250);
+  --color-input: oklch(0.88 0.008 250);
+  --color-ring: oklch(0.55 0.14 185);
+
+  /* Radius */
+  --radius-lg: 0.625rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+
+  /* Font */
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}
+
+/* --- Dark Theme --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: oklch(0.13 0.015 250);
+    --color-foreground: oklch(0.93 0.005 250);
+
+    --color-card: oklch(0.17 0.015 250);
+    --color-card-foreground: oklch(0.93 0.005 250);
+
+    --color-popover: oklch(0.17 0.015 250);
+    --color-popover-foreground: oklch(0.93 0.005 250);
+
+    --color-primary: oklch(0.6 0.14 185);
+    --color-primary-foreground: oklch(0.1 0.015 185);
+
+    --color-secondary: oklch(0.22 0.015 250);
+    --color-secondary-foreground: oklch(0.88 0.005 250);
+
+    --color-muted: oklch(0.2 0.012 250);
+    --color-muted-foreground: oklch(0.6 0.015 250);
+
+    --color-accent: oklch(0.22 0.015 250);
+    --color-accent-foreground: oklch(0.88 0.005 250);
+
+    --color-destructive: oklch(0.6 0.2 25);
+    --color-destructive-foreground: oklch(0.93 0.005 25);
+
+    --color-success: oklch(0.6 0.15 155);
+    --color-success-foreground: oklch(0.1 0.015 155);
+
+    --color-warning: oklch(0.7 0.16 75);
+    --color-warning-foreground: oklch(0.15 0.04 75);
+
+    --color-border: oklch(0.25 0.012 250);
+    --color-input: oklch(0.25 0.012 250);
+    --color-ring: oklch(0.6 0.14 185);
+  }
+}
+
+/* --- Base Styles --- */
+
+*,
+*::before,
+*::after {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Focus ring utility --- */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Scrollbar styling --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted-foreground);
+  border-radius: 3px;
+  opacity: 0.3;
+}
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.5;
+}

@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma:*)",
+      "Bash(npm run:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(npx next:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(pm2 list:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(tailscale status:*)",
+      "Bash(scp:*)",
+      "Bash(tailscale file:*)",
+      "Bash(find / -name \"*.csv\" -path \"*/radiology*\")",
+      "Read(//var/www/**)",
+      "mcp__claude_ai_Box__search_folders_by_name",
+      "WebFetch(domain:www.lumusimaging.com.au)",
+      "WebSearch",
+      "WebFetch(domain:casimaging.com)",
+      "WebFetch(domain:www.casimaging.com.au)",
+      "WebFetch(domain:www.healthdirect.gov.au)",
+      "WebFetch(domain:i-med.com.au)",
+      "Bash(npx tsx:*)",
+      "Bash(npm install:*)",
+      "Bash(npm ls:*)",
+      "Bash(ls node_modules/react-signature-canvas/dist/*.d.ts)",
+      "mcp__claude_ai_Gmail__gmail_get_profile",
+      "Bash(gws --help)",
+      "Bash(gws auth:*)",
+      "WebFetch(domain:docs.notifyre.com)",
+      "Bash(git init:*)"
+    ]
+  }
+}

@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String           @id @default(cuid())
+  email             String           @unique
+  name              String
+  passwordHash      String
+  role              String           @default("staff") // admin | staff
+  mfaSecret         String?
+  mfaEnabled        Boolean          @default(false)
+  defaultProviderId String?
+  signatureImage    String?          // path to signature file
+  failedAttempts    Int              @default(0)
+  lockedAt          DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  sessions          Session[]
+  requests          ImagingRequest[]
+  auditLogs         AuditLog[]
+  apiKeys           ApiKey[]
+  defaultProvider   Provider?        @relation("UserDefaultProvider", fields: [defaultProviderId], references: [id])
+  providers         Provider[]       @relation("UserProviders")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  ipAddress String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model RadiologyPractice {
+  id         String           @id @default(cuid())
+  name       String
+  address    String?
+  phone      String?
+  fax        String?
+  email      String?
+  usageCount Int              @default(0)
+  lastUsedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  requests   ImagingRequest[]
+  radiologists Radiologist[]
+}
+
+model Radiologist {
+  id         String              @id @default(cuid())
+  name       String
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt @default(now())
+  practices  RadiologyPractice[]
+  requests   ImagingRequest[]
+}
+
+model Provider {
+  id             String           @id @default(cuid())
+  doctorName     String
+  providerNumber String           @unique
+  location       String           // clinic/practice name
+  address        String?
+  phone          String?
+  fax            String?
+  email          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt @default(now())
+  requests       ImagingRequest[]
+  defaultUsers   User[]             @relation("UserDefaultProvider")
+  users          User[]             @relation("UserProviders")
+}
+
+model ImagingRequest {
+  id               String             @id @default(cuid())
+  practiceId       String?
+  rawPhiInput      String // encrypted via pgcrypto
+  parsedPhi        Json? // encrypted via pgcrypto
+  examType         String
+  examOther        String?
+  clinicalDetails  String
+  contrastReaction String // "yes" | "no"
+  egfr             String?
+  providerId       String
+  reportByRadiologistId String?
+  patientEmail     String?
+  sendToPatient    Boolean            @default(false)
+  deliveryMethod   String // "email" | "fax" | "both"
+  status           String             @default("pending") // pending | delivered | partial | failed
+  pdfPath          String?
+  createdBy        String
+  createdAt        DateTime           @default(now())
+  practice         RadiologyPractice? @relation(fields: [practiceId], references: [id])
+  provider         Provider           @relation(fields: [providerId], references: [id])
+  reportByRadiologist Radiologist?    @relation(fields: [reportByRadiologistId], references: [id])
+  creator          User               @relation(fields: [createdBy], references: [id])
+  deliveryJobs     DeliveryJob[]
+}
+
+model DeliveryJob {
+  id          String          @id @default(cuid())
+  requestId   String
+  type        String // provider_email | provider_fax | filing_email | patient_email
+  status      String          @default("queued") // queued | processing | sent | delivered | failed
+  attempts    Int             @default(0)
+  lastError   String?
+  externalId  String? // Notifyre fax ID
+  confirmedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  request     ImagingRequest  @relation(fields: [requestId], references: [id])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  action       String // login | logout | login_failed | request_created | practice_updated | api_request | ...
+  resourceType String? // imaging_request | practice | user | api_key
+  resourceId   String?
+  details      String?
+  ipAddress    String?
+  apiKeyId     String? // populated for API-originated actions
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id])
+  apiKey       ApiKey?  @relation(fields: [apiKeyId], references: [id])
+}
+
+model ApiKey {
+  id            String     @id @default(cuid())
+  name          String // e.g. "Synaptum 8 Production"
+  keyHash       String     @unique // SHA-256 hash (never store plaintext)
+  keyPrefix     String // First 8 chars for identification
+  userId        String // Acting-as user for audit trail
+  scopes        String[]   @default(["requests:write", "requests:read", "practices:read", "providers:read"])
+  webhookUrl    String? // Push delivery status updates here
+  webhookSecret String? // HMAC secret for webhook signing
+  allowedIps    String[]   @default([])
+  lastUsedAt    DateTime?
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  createdAt     DateTime   @default(now())
+  user          User       @relation(fields: [userId], references: [id])
+  auditLogs     AuditLog[]
+}

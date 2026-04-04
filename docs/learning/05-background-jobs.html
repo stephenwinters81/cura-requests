@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 05: Background Jobs &amp; Delivery &mdash; Requests Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #161924;
+    --surface2: #1e2130;
+    --surface3: #262a3a;
+    --border: #2c3044;
+    --text: #e8e4df;
+    --text-soft: #b0aaa2;
+    --muted: #7a7670;
+    --amber: #f0a85c;
+    --amber-dim: rgba(240,168,92,0.12);
+    --amber-mid: rgba(240,168,92,0.25);
+    --green: #5ce08a;
+    --green-dim: rgba(92,224,138,0.12);
+    --red: #e05c6f;
+    --red-dim: rgba(224,92,111,0.12);
+    --blue: #5ca8f0;
+    --blue-dim: rgba(92,168,240,0.12);
+    --purple: #a07cf0;
+    --purple-dim: rgba(160,124,240,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Top Nav */
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .top-nav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .top-nav a:hover {
+    color: var(--amber);
+  }
+
+  .nav-arrows {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  /* Module Header */
+  .module-header {
+    padding: 2rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .module-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--amber);
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.03em;
+  }
+
+  .module-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .module-header p {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+  }
+
+  /* Section Styles */
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .section p {
+    font-size: 1rem;
+    color: var(--text-soft);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .section strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Analogy Box */
+  .analogy {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.2rem 0;
+  }
+
+  .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+
+  .analogy p {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  /* Diagram / Flow */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    text-align: center;
+    min-width: 140px;
+    transition: border-color 0.3s ease;
+  }
+
+  .flow-box:hover {
+    border-color: var(--amber);
+  }
+
+  .flow-box .flow-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .flow-box .flow-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .flow-box .flow-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .flow-arrow {
+    font-size: 1.4rem;
+    color: var(--amber);
+    padding: 0 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* Pipeline (numbered steps) */
+  .pipeline {
+    margin: 1.5rem 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: pipeline;
+  }
+
+  .pipeline li {
+    counter-increment: pipeline;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+
+  .pipeline li:last-child {
+    border-bottom: none;
+  }
+
+  .pipeline li::before {
+    content: counter(pipeline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 50%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 0.7rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .data-table td {
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .data-table tbody tr {
+    background: var(--surface);
+    transition: background 0.2s ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--surface2);
+  }
+
+  .data-table code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    background: var(--surface3);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: var(--blue);
+  }
+
+  /* Inline code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--surface3);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: var(--blue);
+  }
+
+  /* Info box */
+  .info-box {
+    background: var(--blue-dim);
+    border: 1px solid rgba(92,168,240,0.25);
+    border-radius: 8px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.2rem 0;
+  }
+
+  .info-box p {
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    margin-bottom: 0;
+  }
+
+  .info-box strong {
+    color: var(--blue);
+  }
+
+  /* Backoff visual */
+  .backoff-visual {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.2rem;
+    margin: 1.5rem 0 1rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    justify-content: center;
+  }
+
+  .backoff-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .backoff-bar .bar {
+    width: 48px;
+    border-radius: 6px 6px 0 0;
+    transition: height 0.3s ease;
+  }
+
+  .backoff-bar .bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .backoff-bar .bar-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-soft);
+  }
+
+  /* MCQ */
+  .mcq {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .mcq-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.7rem;
+  }
+
+  .mcq-question {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mcq-option {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    user-select: none;
+  }
+
+  .mcq-option:hover {
+    border-color: var(--purple);
+    background: var(--purple-dim);
+  }
+
+  .mcq-option .mcq-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .mcq-option.correct {
+    border-color: var(--green);
+    background: var(--green-dim);
+  }
+
+  .mcq-option.correct .mcq-letter {
+    color: var(--green);
+  }
+
+  .mcq-option.incorrect {
+    border-color: var(--red);
+    background: var(--red-dim);
+  }
+
+  .mcq-option.incorrect .mcq-letter {
+    color: var(--red);
+  }
+
+  .mcq-option.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .mcq-option.correct.disabled {
+    opacity: 1;
+  }
+
+  .mcq-feedback {
+    margin-top: 0.8rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .mcq-feedback.show {
+    display: block;
+  }
+
+  .mcq-feedback.correct {
+    background: var(--green-dim);
+    border: 1px solid rgba(92,224,138,0.25);
+    color: var(--green);
+  }
+
+  .mcq-feedback.incorrect {
+    background: var(--red-dim);
+    border: 1px solid rgba(224,92,111,0.25);
+    color: var(--red);
+  }
+
+  /* Completion */
+  .completion {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 2rem 0;
+    display: none;
+  }
+
+  .completion.show {
+    display: block;
+  }
+
+  .completion h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--green);
+  }
+
+  .completion p {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .completion-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.6rem;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    margin: 0 0.4rem;
+  }
+
+  .completion-btn:hover {
+    background: rgba(92,224,138,0.2);
+  }
+
+  .completion-btn.secondary {
+    background: var(--surface2);
+    border-color: var(--border);
+    color: var(--text-soft);
+  }
+
+  .completion-btn.secondary:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .bottom-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .bottom-nav a:hover {
+    color: var(--amber);
+  }
+
+  .bottom-nav .nav-direction {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .bottom-nav .nav-prev {
+    text-align: left;
+  }
+
+  .bottom-nav .nav-next {
+    text-align: right;
+  }
+
+  /* Footer */
+  footer {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  footer p {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 0 1rem; }
+    .module-header h1 { font-size: 2rem; }
+    .flow-diagram { flex-direction: column; gap: 0; }
+    .flow-arrow { transform: rotate(90deg); padding: 0.4rem 0; }
+    .backoff-visual { flex-direction: row; align-items: flex-end; gap: 0.8rem; }
+    .data-table { font-size: 0.8rem; }
+    .data-table th, .data-table td { padding: 0.5rem 0.6rem; }
+    .bottom-nav { flex-direction: column; gap: 1.5rem; align-items: stretch; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="index.html">&larr; Back to hub</a>
+    <div class="nav-arrows">
+      <a href="04-security.html">&larr; Prev</a>
+      <a href="06-api-layer.html">Next &rarr;</a>
+    </div>
+  </nav>
+
+  <!-- Module Header -->
+  <header class="module-header">
+    <div class="module-badge">Module 05 / 07</div>
+    <h1>Background Jobs &amp; Delivery</h1>
+    <p>How Requests sends emails and faxes without making users wait. The queue, the worker, retries, and webhook confirmations.</p>
+  </header>
+
+  <!-- Section 1: Why Background Jobs? -->
+  <section class="section" id="section-1">
+    <div class="section-label">Section 1</div>
+    <h2>Why Background Jobs?</h2>
+
+    <p>Here is the problem. Sending a fax can take <strong>30 seconds or more</strong>. An email server might be temporarily down. If the web server tried to do all of that during the page request, the user would stare at a loading spinner for minutes.</p>
+
+    <p>That is a terrible experience. And it gets worse: what if three deliveries need to happen for one request? The user would wait for all of them, one after another.</p>
+
+    <p>The solution is a <strong>job queue</strong>. When someone submits an imaging request, the web server does not send anything itself. Instead, it creates "jobs" — small packets of work — and drops them onto a queue. A completely separate process picks up those jobs and handles the actual sending.</p>
+
+    <p>The user sees a confirmation instantly. The deliveries happen in the background.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>Think of a restaurant kitchen with a ticket rail. The waiter (web server) takes the customer's order and clips the ticket to the rail. Then the waiter immediately goes back to serve more customers. The cook (worker) picks up tickets one by one and prepares the food. If a dish burns, the cook remakes it. The waiter does not need to stand in the kitchen and watch.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 1 -->
+  <div class="mcq" data-correct="b">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">Why don't deliveries happen during the HTTP request?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>Because JavaScript can only run one thing at a time</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>To avoid blocking the user &mdash; delivery can take too long</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>Because the database does not allow it</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>Because Next.js does not support sending emails</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Section 2: The Stack -->
+  <section class="section" id="section-2">
+    <div class="section-label">Section 2</div>
+    <h2>The Stack</h2>
+
+    <p>Three pieces of technology work together to make background jobs happen.</p>
+
+    <div class="flow-diagram">
+      <div class="flow-box">
+        <div class="flow-icon">&#9881;</div>
+        <div class="flow-title">Next.js Server</div>
+        <div class="flow-desc">Creates jobs</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-box">
+        <div class="flow-icon">&#9993;</div>
+        <div class="flow-title">BullMQ Queue</div>
+        <div class="flow-desc">Stored in Redis</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-box">
+        <div class="flow-icon">&#9889;</div>
+        <div class="flow-title">Delivery Worker</div>
+        <div class="flow-desc">PM2 process</div>
+      </div>
+    </div>
+
+    <p><strong>Redis</strong> is an in-memory data store. Think of it as a super-fast message board. It lives entirely in your server's RAM, which makes it extremely quick to read and write. BullMQ uses Redis to store the job queue. When the Next.js server adds a job, it writes to Redis. When the worker checks for new jobs, it reads from Redis.</p>
+
+    <p><strong>BullMQ</strong> is a Node.js library for managing job queues. It handles: adding jobs to the queue, distributing them to workers, tracking each job's status, and retrying jobs that fail. It takes care of all the hard coordination so our code just says "add this job" and "process jobs like this."</p>
+
+    <p><strong>PM2</strong> is a process manager. It keeps the delivery worker running as its own process, completely separate from the Next.js web server. If the worker crashes, PM2 restarts it automatically. This separation means a worker crash never takes down the website, and a website restart never interrupts an in-progress delivery.</p>
+
+    <div class="info-box">
+      <p><strong>Key point:</strong> The web server and the worker are two separate processes. They communicate through Redis, not directly. This is what makes the system resilient.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 2 -->
+  <div class="mcq" data-correct="c">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What does Redis do in this system?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>Sends emails to radiology practices</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>Generates the PDF for each request</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>Stores the BullMQ job queue in memory</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>Encrypts patient health information</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Section 3: Job Types -->
+  <section class="section" id="section-3">
+    <div class="section-label">Section 3</div>
+    <h2>Job Types</h2>
+
+    <p>Each delivery is a separate job with its own type. Here are the four types of jobs the system creates:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>What it does</th>
+          <th>Destination</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>provider_email</code></td>
+          <td>Emails the PDF to the radiology practice</td>
+          <td>Practice email address</td>
+        </tr>
+        <tr>
+          <td><code>provider_fax</code></td>
+          <td>Faxes the PDF via the Notifyre API</td>
+          <td>Practice fax number</td>
+        </tr>
+        <tr>
+          <td><code>filing_email</code></td>
+          <td>Emails a PDF copy to CURA for their records</td>
+          <td>clinic@curaspecialists.com.au</td>
+        </tr>
+        <tr>
+          <td><code>patient_email</code></td>
+          <td>Emails the PDF to the patient (optional)</td>
+          <td>Patient's email address</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>A single imaging request might create <strong>2, 3, or 4 jobs</strong> depending on the delivery method and whether a patient copy is requested. At minimum, there is always a provider delivery and a filing copy. If the practice wants both email and fax, that is three jobs. Add a patient copy and you are at four.</p>
+  </section>
+
+  <!-- MCQ 3 -->
+  <div class="mcq" data-correct="d">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">A request is sent via both email and fax, with a patient copy requested. How many delivery jobs are created?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>1</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>2</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>3</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>4 (provider_email + provider_fax + filing_email + patient_email)</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Section 4: The Worker's Workflow -->
+  <section class="section" id="section-4">
+    <div class="section-label">Section 4</div>
+    <h2>The Worker's Workflow</h2>
+
+    <p>When the worker picks up a job, it follows this pipeline step by step:</p>
+
+    <ol class="pipeline">
+      <li>Pick up the next job from the Redis queue</li>
+      <li>Set the DeliveryJob status to <code>"processing"</code> in the database</li>
+      <li>Load the encrypted PDF from disk and decrypt it into memory</li>
+      <li>Send via the correct channel &mdash; Nodemailer for email, Notifyre API for fax</li>
+      <li>On success: update status to <code>"sent"</code> (email) or wait for webhook confirmation (fax)</li>
+      <li>On failure: increment the attempt counter and log the error</li>
+      <li>Update the parent ImagingRequest's overall status based on all its delivery jobs</li>
+      <li>If a webhook is configured: notify Synaptum 8 about the status change</li>
+    </ol>
+
+    <p>The worker processes one job at a time to keep things simple and predictable. If it fails on step 4, it does not skip to step 7. It jumps to step 6 (failure handling) and the job goes back in the queue for a retry.</p>
+  </section>
+
+  <!-- Section 5: Retries & Exponential Backoff -->
+  <section class="section" id="section-5">
+    <div class="section-label">Section 5</div>
+    <h2>Retries &amp; Exponential Backoff</h2>
+
+    <p>Things fail. An email server goes down. A fax line is busy. The internet hiccups. The system is designed to handle this gracefully.</p>
+
+    <p>Each job gets a maximum of <strong>3 attempts</strong>. After each failure, the system waits before trying again &mdash; but the wait gets longer each time. This is called <strong>exponential backoff</strong>.</p>
+
+    <div class="backoff-visual">
+      <div class="backoff-bar">
+        <div class="bar" style="height: 30px; background: var(--amber);"></div>
+        <div class="bar-time">30 sec</div>
+        <div class="bar-label">Retry 1</div>
+      </div>
+      <div class="backoff-bar">
+        <div class="bar" style="height: 80px; background: var(--amber);"></div>
+        <div class="bar-time">2 min</div>
+        <div class="bar-label">Retry 2</div>
+      </div>
+      <div class="backoff-bar">
+        <div class="bar" style="height: 160px; background: var(--red);"></div>
+        <div class="bar-time">10 min</div>
+        <div class="bar-label">Retry 3</div>
+      </div>
+    </div>
+
+    <p><strong>Why exponential?</strong> If an email server is down, hammering it every second makes things worse. It can overload a server that is already struggling to recover. Spacing out retries gives the remote system time to come back online.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>Calling a friend who is not answering. You try again after 30 seconds. Still no answer? Wait 2 minutes. Still nothing? Wait 10 minutes. After 3 tries, you leave a voicemail (mark the job as "failed") and deal with it manually.</p>
+    </div>
+
+    <p>After all 3 attempts fail, the job stays in the database with a status of <code>"failed"</code>. An admin can see it on the dashboard and manually re-send it.</p>
+  </section>
+
+  <!-- MCQ 4 -->
+  <div class="mcq" data-correct="c">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What is the delay before the third retry attempt?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>30 seconds</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>2 minutes</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>10 minutes</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>1 hour</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Section 6: Fax Confirmations (Webhooks) -->
+  <section class="section" id="section-6">
+    <div class="section-label">Section 6</div>
+    <h2>Fax Confirmations (Webhooks)</h2>
+
+    <p>Email and fax are confirmed differently.</p>
+
+    <p><strong>Email</strong> is "fire and forget." Once the system hands the email to the SMTP server, it is marked as <code>"sent"</code>. We trust the email infrastructure to handle the rest. There is no callback.</p>
+
+    <p><strong>Fax is different.</strong> When the worker sends a fax via the Notifyre API, the fax does not arrive instantly. It has to dial, negotiate with the receiving machine, and transmit page by page. This can take minutes. So the worker marks the job as <code>"sent"</code> and moves on.</p>
+
+    <p>Later, when the fax actually arrives (or fails), Notifyre calls back to a special endpoint on our server:</p>
+
+    <p style="text-align: center; margin: 1rem 0;">
+      <code>/api/fax/webhook</code>
+    </p>
+
+    <p>This is called a <strong>webhook</strong>. It is Notifyre saying "Hey, that fax you asked me to send? It was delivered." (Or "It failed.") Our server then updates the DeliveryJob status to <code>"delivered"</code> and records a <code>confirmedAt</code> timestamp.</p>
+
+    <p>But how do we know the webhook actually came from Notifyre and not an attacker? <strong>HMAC verification.</strong> Notifyre signs every webhook with a secret key. Our server checks the signature before trusting the message. If the signature does not match, the webhook is rejected.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>Regular email is like dropping a letter in a mailbox. You trust it will arrive. Fax is like registered mail. The post office calls you back to confirm delivery. And the HMAC signature is like the post office using a secret codeword so you know the call is real.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 5 -->
+  <div class="mcq" data-correct="b">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">How does the system know a fax was successfully delivered?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>The worker waits on the phone line until the fax is confirmed</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>Notifyre sends a webhook callback to /api/fax/webhook</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>The system checks Notifyre's website every 5 minutes</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>The radiology practice sends a confirmation email back</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Section 7: Idempotency -->
+  <section class="section" id="section-7">
+    <div class="section-label">Section 7</div>
+    <h2>Idempotency</h2>
+
+    <p>There is a word that comes up a lot in job queue systems: <strong>idempotency</strong>. It means "doing the same thing twice produces the same result as doing it once."</p>
+
+    <p>Why does this matter? Imagine the worker picks up a job, sends the fax, but crashes before it can mark the job as complete. When PM2 restarts the worker, BullMQ might think the job was never finished and try to run it again. Without protection, the patient would receive two identical faxes.</p>
+
+    <p>BullMQ prevents this by giving each job a <strong>unique ID</strong>. The worker tracks which jobs it has processed. If a job ID has already been completed, it will not be processed again &mdash; even if the worker restarted.</p>
+
+    <p>This is a safety net. It means the system can be aggressive about retries without worrying about duplicate deliveries.</p>
+
+    <div class="info-box">
+      <p><strong>In short:</strong> Crashes and restarts are normal in production. Idempotency ensures they never cause duplicate faxes or emails. Each job runs exactly once, even in the worst case.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 6 -->
+  <div class="mcq" data-correct="a">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What prevents the same fax from being sent twice if the worker crashes?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-value="a">
+        <span class="mcq-letter">A</span>
+        <span>Job idempotency &mdash; each job has a unique ID</span>
+      </div>
+      <div class="mcq-option" data-value="b">
+        <span class="mcq-letter">B</span>
+        <span>Redis automatically deletes duplicate jobs</span>
+      </div>
+      <div class="mcq-option" data-value="c">
+        <span class="mcq-letter">C</span>
+        <span>The fax machine rejects duplicates</span>
+      </div>
+      <div class="mcq-option" data-value="d">
+        <span class="mcq-letter">D</span>
+        <span>PM2 checks for duplicates before restarting</span>
+      </div>
+    </div>
+    <div class="mcq-feedback"></div>
+  </div>
+
+  <!-- Completion Card -->
+  <div class="completion" id="completionCard">
+    <h3>Module Complete</h3>
+    <p>You now understand how Requests handles background delivery with BullMQ, Redis, and PM2.</p>
+    <div>
+      <a href="06-api-layer.html" class="completion-btn">Next: The API Layer &rarr;</a>
+      <a href="index.html" class="completion-btn secondary">Back to hub</a>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="04-security.html" class="nav-prev">
+      <span>&larr;</span>
+      <div>
+        <div class="nav-direction">Previous</div>
+        Security &amp; PHI Protection
+      </div>
+    </a>
+    <a href="06-api-layer.html" class="nav-next">
+      <div>
+        <div class="nav-direction">Next</div>
+        The API Layer
+      </div>
+      <span>&rarr;</span>
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <footer>
+    <p>Requests Learning Pack &bull; Module 05 of 07</p>
+  </footer>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'requests_learning';
+  const MODULE = '05';
+  const TOTAL_QUESTIONS = 6;
+  let answeredCorrectly = 0;
+  let answeredTotal = 0;
+
+  // --- Progress helpers ---
+  function getProgress() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch { return {}; }
+  }
+
+  function saveProgress(progress) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function markInProgress() {
+    const progress = getProgress();
+    if (progress[MODULE] !== 'completed') {
+      progress[MODULE] = 'in-progress';
+      saveProgress(progress);
+    }
+  }
+
+  function markCompleted() {
+    const progress = getProgress();
+    progress[MODULE] = 'completed';
+    saveProgress(progress);
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // --- MCQ Logic ---
+  function initMCQs() {
+    const mcqs = document.querySelectorAll('.mcq');
+
+    mcqs.forEach((mcq) => {
+      const correct = mcq.getAttribute('data-correct');
+      const options = mcq.querySelectorAll('.mcq-option');
+      const feedback = mcq.querySelector('.mcq-feedback');
+      let answered = false;
+
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          if (answered) return;
+          answered = true;
+          answeredTotal++;
+
+          const value = option.getAttribute('data-value');
+          const isCorrect = value === correct;
+
+          // Disable all options
+          options.forEach((opt) => {
+            opt.classList.add('disabled');
+          });
+
+          if (isCorrect) {
+            option.classList.add('correct');
+            answeredCorrectly++;
+            feedback.textContent = 'Correct!';
+            feedback.className = 'mcq-feedback show correct';
+          } else {
+            option.classList.add('incorrect');
+            // Highlight the correct one
+            options.forEach((opt) => {
+              if (opt.getAttribute('data-value') === correct) {
+                opt.classList.add('correct');
+              }
+            });
+            feedback.textContent = 'Not quite. The correct answer is highlighted above.';
+            feedback.className = 'mcq-feedback show incorrect';
+          }
+
+          // Check if all questions answered
+          if (answeredTotal === TOTAL_QUESTIONS) {
+            setTimeout(() => {
+              markCompleted();
+              document.getElementById('completionCard').classList.add('show');
+              showToast('Module 05 completed!');
+            }, 800);
+          }
+        });
+      });
+    });
+  }
+
+  // --- Init ---
+  markInProgress();
+  initMCQs();
+</script>
+
+</body>
+</html>

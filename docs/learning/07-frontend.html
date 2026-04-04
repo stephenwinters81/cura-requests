@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 07: The Frontend — Requests Learning Pack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:wght@900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --bg:#0c0e14;--surface:#161924;--surface2:#1e2130;--surface3:#262a3a;--border:#2c3044;
+    --text:#e8e4df;--text-soft:#b0aaa2;--muted:#7a7670;
+    --amber:#f0a85c;--amber-dim:rgba(240,168,92,0.12);--amber-mid:rgba(240,168,92,0.25);
+    --green:#5ce08a;--green-dim:rgba(92,224,138,0.12);--green-mid:rgba(92,224,138,0.3);
+    --red:#e05c6f;--red-dim:rgba(224,92,111,0.12);--red-mid:rgba(224,92,111,0.3);
+    --blue:#5ca8f0;--blue-dim:rgba(92,168,240,0.12);
+    --cyan:#22d3ee;--purple:#a07cf0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+  .container{max-width:780px;margin:0 auto;padding:48px 28px 80px}
+  .topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;animation:fadeUp .5s ease-out}
+  .topnav a{color:var(--text-soft);text-decoration:none;font-size:.88rem;font-weight:400;transition:color .2s}
+  .topnav a:hover{color:var(--amber)}
+  .topnav .mod-indicator{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+  .header{margin-bottom:44px;animation:fadeUp .5s ease-out .05s both}
+  .header h1{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:900;line-height:1.2;margin-bottom:8px}
+  .header .lead{color:var(--text-soft);font-size:1.05rem;font-weight:300}
+  h2{font-size:1.25rem;font-weight:700;margin:48px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border);color:var(--text);position:relative}
+  h2 .num{color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.85rem;margin-right:8px}
+  h3{font-size:1.05rem;font-weight:600;margin:28px 0 10px;color:var(--purple)}
+  p{margin-bottom:16px;font-weight:300;color:var(--text-soft)}
+  p strong{color:var(--text);font-weight:500}
+  .diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;margin:20px 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;overflow-x:auto;white-space:pre;color:var(--cyan)}
+  .vflow{margin:28px 0;display:flex;flex-direction:column;gap:0}
+  .vbox{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;text-align:center;position:relative;width:100%}
+  .vbox .vbox-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .vbox .vbox-label.amber{color:var(--amber)}.vbox .vbox-label.blue{color:var(--blue)}.vbox .vbox-label.green{color:var(--green)}.vbox .vbox-label.purple{color:var(--purple)}.vbox .vbox-label.cyan{color:var(--cyan)}
+  .vbox .vbox-title{font-weight:600;font-size:.95rem;margin-bottom:4px}
+  .vbox .vbox-desc{font-size:.82rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .varrow{display:flex;align-items:center;justify-content:center;padding:6px 0;color:var(--muted);font-size:.75rem;gap:6px;font-weight:300}
+  .varrow .arrow-line{width:2px;height:24px;background:var(--border);border-radius:1px}
+  .varrow .arrow-head{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--border)}
+  .varrow-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.04em}
+  .hflow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0;margin:28px 0}
+  .hflow-3{grid-template-columns:1fr auto 1fr auto 1fr}
+  .harrow{display:flex;flex-direction:column;align-items:center;padding:0 10px;color:var(--muted)}
+  .harrow .arrow-shaft{width:32px;height:2px;background:var(--border)}
+  .harrow .arrow-tip{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:6px solid var(--border)}
+  .harrow-stack{display:flex;align-items:center}
+  .harrow-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);text-align:center;margin-top:4px}
+  .pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}
+  .pipe-stage{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;position:relative}
+  .pipe-stage::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:6px solid var(--border)}
+  .pipe-stage:last-child::after{display:none}
+  .pipe-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);margin-bottom:4px}
+  .pipe-name{font-weight:600;font-size:.88rem;margin-bottom:4px}
+  .pipe-desc{font-size:.75rem;color:var(--text-soft);font-weight:300;line-height:1.4}
+  .pipe-stage:nth-child(1) .pipe-name{color:var(--amber)}
+  .pipe-stage:nth-child(2) .pipe-name{color:var(--blue)}
+  .pipe-stage:nth-child(3) .pipe-name{color:var(--purple)}
+  .pipe-stage:nth-child(4) .pipe-name{color:var(--green)}
+  .callout{background:var(--surface2);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem;border-left:3px solid var(--blue);font-weight:300}
+  .callout strong{font-weight:600}
+  .callout.insight{border-left-color:var(--amber)} .callout.insight strong{color:var(--amber)}
+  .callout.remember{border-left-color:var(--green)} .callout.remember strong{color:var(--green)}
+  .callout.warning{border-left-color:var(--red)} .callout.warning strong{color:var(--red)}
+  .analogy{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px dashed var(--amber-mid);border-radius:10px;padding:16px 20px;margin:20px 0;font-size:.92rem}
+  .analogy::before{content:'Think of it like...';display:block;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);font-size:.88rem;font-weight:300}
+  th{color:var(--amber);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+  code{font-family:'JetBrains Mono',monospace;background:var(--surface);padding:2px 7px;border-radius:4px;font-size:.84em;color:var(--cyan)}
+  .mcq{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin:32px 0;animation:fadeUp .4s ease-out}
+  .mcq-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .mcq-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:var(--amber-dim);padding:3px 10px;border-radius:100px}
+  .mcq-topic{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted)}
+  .mcq-question{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:16px;line-height:1.5}
+  .mcq-options{display:grid;gap:8px}
+  .mcq-opt{display:block;width:100%;text-align:left;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:400;color:var(--text-soft);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;position:relative}
+  .mcq-opt:hover:not(:disabled){border-color:var(--amber-mid);color:var(--text);background:var(--surface3)}
+  .mcq-opt:disabled{cursor:default;opacity:0.7}
+  .mcq-opt.correct{border-color:var(--green-mid)!important;background:var(--green-dim)!important;color:var(--green)!important;opacity:1!important}
+  .mcq-opt.wrong{border-color:var(--red-mid)!important;background:var(--red-dim)!important;color:var(--red)!important;opacity:1!important}
+  .mcq-opt .letter{font-family:'JetBrains Mono',monospace;font-weight:600;margin-right:8px;font-size:.8rem}
+  .mcq-explain{margin-top:14px;padding:14px 16px;border-radius:8px;font-size:.88rem;line-height:1.6;display:none;font-weight:300}
+  .mcq-explain.show{display:block}
+  .mcq-explain.right{background:var(--green-dim);border:1px solid var(--green-mid);color:var(--green)}
+  .mcq-explain.wrong{background:var(--red-dim);border:1px solid var(--red-mid);color:var(--text-soft)}
+  .mcq-explain strong{font-weight:500}
+  .bottomnav{display:flex;justify-content:space-between;align-items:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border)}
+  .bottomnav a{color:var(--amber);text-decoration:none;font-size:.9rem;font-weight:500;transition:opacity .2s}
+  .bottomnav a:hover{opacity:.8}
+  .mod-score{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--muted)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:640px){.hflow{grid-template-columns:1fr;gap:0}.harrow{transform:rotate(90deg);padding:8px 0}.pipeline{grid-template-columns:1fr 1fr}.pipe-stage::after{display:none}}
+
+  /* Page map grid */
+  .page-map{display:grid;gap:12px;margin:24px 0}
+  .page-group{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .page-group-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:block}
+  .page-group-label.amber{color:var(--amber)}
+  .page-group-label.blue{color:var(--blue)}
+  .page-group-label.green{color:var(--green)}
+  .page-row{display:flex;align-items:baseline;gap:10px;padding:5px 0;font-size:.88rem}
+  .page-row code{font-size:.78em;min-width:180px;display:inline-block}
+  .page-row .page-desc{color:var(--text-soft);font-weight:300;font-size:.84rem}
+
+  /* Form field list */
+  .form-fields{margin:20px 0;display:flex;flex-direction:column;gap:8px}
+  .form-field{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:.88rem}
+  .form-field .field-num{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--amber);font-weight:600;min-width:22px;padding-top:2px}
+  .form-field .field-name{font-weight:600;color:var(--text);min-width:140px}
+  .form-field .field-desc{color:var(--text-soft);font-weight:300;line-height:1.5}
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Top Navigation -->
+    <nav class="topnav">
+      <a href="index.html">&larr; Back to Hub</a>
+      <span class="mod-indicator">Module 07 / 07</span>
+      <a href="06-api-layer.html">&larr; Prev: The API Layer</a>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+      <h1>The Frontend</h1>
+      <p class="lead">Next.js pages, the imaging request form, admin dashboards, and how the UI talks to the server.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 1: What is Next.js? -->
+    <!-- ============================================ -->
+    <h2><span class="num">01</span> What is Next.js?</h2>
+
+    <p>Before we look at the pages, let's understand the tool that builds them.</p>
+
+    <p><strong>React</strong> is a JavaScript library for building user interfaces. It lets you break a page into small, reusable pieces called <strong>components</strong> — a button, a dropdown, a form field. You snap these together to build a full page. React was created by Facebook and is the most popular way to build web apps today.</p>
+
+    <p><strong>Next.js</strong> is a framework built on top of React. A framework is like a pre-built house frame — it gives you structure, plumbing, and wiring so you can focus on the rooms and furniture. Next.js adds things React doesn't have on its own: page routing, server-side rendering, and server actions (we'll explain those shortly).</p>
+
+    <h3>App Router: folders become URLs</h3>
+
+    <p>Requests uses Next.js 14 with the <strong>App Router</strong>. This means every page in the app is defined by its folder structure in the codebase. The file path maps directly to the URL the user visits in their browser.</p>
+
+    <p>For example:</p>
+
+    <table>
+      <tr><th>File path</th><th>URL</th></tr>
+      <tr><td><code>app/login/page.tsx</code></td><td><code>/login</code></td></tr>
+      <tr><td><code>app/requests/new/page.tsx</code></td><td><code>/requests/new</code></td></tr>
+      <tr><td><code>app/admin/practices/page.tsx</code></td><td><code>/admin/practices</code></td></tr>
+    </table>
+
+    <p>The file must be called <code>page.tsx</code>. The folder it sits in determines the URL. Simple as that.</p>
+
+    <h3>Server-side rendering</h3>
+
+    <p><strong>Server-side rendering (SSR)</strong> means the server prepares the full page before sending it to your browser. The browser receives a complete page that's ready to display, rather than an empty shell that has to build itself using JavaScript.</p>
+
+    <p>This matters for two reasons: <strong>speed</strong> (the page appears faster because it arrives ready-made) and <strong>security</strong> (sensitive logic runs on the server, not in the browser where anyone could inspect it).</p>
+
+    <div class="analogy">
+      A restaurant menu. Each page of the menu is a <strong>route</strong> (a URL). The kitchen (server) prepares the dish (page) before bringing it to your table (browser). You don't have to cook it yourself — it arrives ready to eat.
+    </div>
+
+    <!-- MCQ 1 -->
+    <div class="mcq" id="q1">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">next.js &bull; app router</span>
+      </div>
+      <div class="mcq-question">In Next.js App Router, what does the file app/requests/new/page.tsx correspond to?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">A</span>A database table called "requests_new"</button>
+        <button class="mcq-opt" onclick="answer('q1',this,true)"><span class="letter">B</span>The URL /requests/new</button>
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">C</span>A background job that creates new requests</button>
+        <button class="mcq-opt" onclick="answer('q1',this,false)"><span class="letter">D</span>An API endpoint at /api/requests/new</button>
+      </div>
+      <div class="mcq-explain" id="q1-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 2: Page Map -->
+    <!-- ============================================ -->
+    <h2><span class="num">02</span> Page Map</h2>
+
+    <p>Here is every page in the app, grouped by who can access them. This is the complete map — there are no hidden pages.</p>
+
+    <div class="page-map">
+      <div class="page-group">
+        <span class="page-group-label amber">Auth Pages (public — no login required)</span>
+        <div class="page-row"><code>/login</code><span class="page-desc">Email + password form</span></div>
+        <div class="page-row"><code>/login/mfa</code><span class="page-desc">TOTP code entry (6-digit code from authenticator app)</span></div>
+        <div class="page-row"><code>/login/mfa/setup</code><span class="page-desc">First-time MFA setup (QR code + backup codes)</span></div>
+      </div>
+
+      <div class="page-group">
+        <span class="page-group-label blue">Staff Pages (must be logged in + MFA verified)</span>
+        <div class="page-row"><code>/dashboard</code><span class="page-desc">Recent submissions, failed deliveries at a glance</span></div>
+        <div class="page-row"><code>/requests/new</code><span class="page-desc">THE main form — imaging request submission</span></div>
+        <div class="page-row"><code>/requests</code><span class="page-desc">Request history table (searchable, filterable)</span></div>
+        <div class="page-row"><code>/requests/[id]</code><span class="page-desc">Request detail page with delivery timeline</span></div>
+      </div>
+
+      <div class="page-group">
+        <span class="page-group-label green">Admin Pages (admin role only)</span>
+        <div class="page-row"><code>/admin/practices</code><span class="page-desc">Radiology practice list (add / edit / remove)</span></div>
+        <div class="page-row"><code>/admin/users</code><span class="page-desc">Staff account management</span></div>
+        <div class="page-row"><code>/admin/api-keys</code><span class="page-desc">API key management for Synaptum 8</span></div>
+      </div>
+    </div>
+
+    <p>Notice the <code>[id]</code> in <code>/requests/[id]</code>. The square brackets mean it's a <strong>dynamic route</strong> — the <code>[id]</code> part is replaced by the actual request ID. So <code>/requests/42</code> shows request number 42, <code>/requests/108</code> shows request number 108, and so on. One page template, many URLs.</p>
+
+    <div class="callout insight">
+      <strong>Three levels of access.</strong> Auth pages are open to everyone (you need them to log in). Staff pages require a valid login with MFA. Admin pages require the admin role on top of that. If a non-admin tries to visit <code>/admin/practices</code>, they get redirected.
+    </div>
+
+    <!-- MCQ 2 -->
+    <div class="mcq" id="q2">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">pages &bull; access control</span>
+      </div>
+      <div class="mcq-question">Which pages require admin role access?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">A</span>/dashboard, /requests, /requests/[id]</button>
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">B</span>/login, /login/mfa, /login/mfa/setup</button>
+        <button class="mcq-opt" onclick="answer('q2',this,true)"><span class="letter">C</span>/admin/practices, /admin/users, /admin/api-keys</button>
+        <button class="mcq-opt" onclick="answer('q2',this,false)"><span class="letter">D</span>/requests/new — because creating requests is a privileged action</button>
+      </div>
+      <div class="mcq-explain" id="q2-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 3: The Imaging Request Form -->
+    <!-- ============================================ -->
+    <h2><span class="num">03</span> The Imaging Request Form</h2>
+
+    <p>This is the heart of the entire application. The page at <code>/requests/new</code> is where staff spend most of their time. Everything else in the system exists to support what happens when this form is submitted.</p>
+
+    <p>Here are all the fields, in order:</p>
+
+    <div class="form-fields">
+      <div class="form-field">
+        <span class="field-num">1</span>
+        <span class="field-name">Radiology Practice</span>
+        <span class="field-desc">A searchable dropdown (called a <strong>combobox</strong>). Start typing and matching practices appear. Recently-used practices are sorted to the top — sorted by how often each one has been used (<code>usageCount</code>). If the practice isn't in the list, you can type a name manually.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">2</span>
+        <span class="field-name">Exam Type</span>
+        <span class="field-desc">A dropdown with 27 predefined exam types (like "MRI Brain", "CT Chest", "Ultrasound Abdomen") plus an "Other" option. Selecting "Other" reveals a free-text field where you can type the exam name.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">3</span>
+        <span class="field-name">Patient Details</span>
+        <span class="field-desc">A large text area where staff paste the patient's information — name, date of birth, Medicare number, phone, address. This is the <strong>PHI dump</strong> that gets parsed server-side by <code>phi-parser.ts</code> (covered in Module 3).</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">4</span>
+        <span class="field-name">Clinical Details</span>
+        <span class="field-desc">Free text explaining why the imaging is needed. For example: "Persistent headaches, rule out space-occupying lesion." This goes on the PDF that the radiology practice receives.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">5</span>
+        <span class="field-name">Contrast Reaction</span>
+        <span class="field-desc">A Yes/No toggle. Some imaging scans use contrast dye. If the patient has had a reaction to contrast dye before, this must be flagged.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">6</span>
+        <span class="field-name">eGFR</span>
+        <span class="field-desc">An optional number field. eGFR is a kidney function measurement. The radiology practice needs this when contrast dye is involved, because poor kidney function can make contrast dye dangerous.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">7</span>
+        <span class="field-name">Provider</span>
+        <span class="field-desc">A dropdown showing the referring doctor + their location. There are 7 combinations across 3 doctors. The logged-in user's default provider is pre-selected.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">8</span>
+        <span class="field-name">Report by Bhatia</span>
+        <span class="field-desc">A checkbox. When ticked, the request specifies that the imaging report should be done by a particular radiologist (Dr Bhatia).</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">9</span>
+        <span class="field-name">Patient Email</span>
+        <span class="field-desc">Optional. If provided, the patient receives a copy of the request by email.</span>
+      </div>
+      <div class="form-field">
+        <span class="field-num">10</span>
+        <span class="field-name">Delivery Method</span>
+        <span class="field-desc">How to send the request to the radiology practice: email, fax, or both. The practice's preferred method is pre-selected from their record in the database.</span>
+      </div>
+    </div>
+
+    <h3>Smart features that save time</h3>
+
+    <p><strong>Auto-save to localStorage.</strong> As you fill out the form, every field is continuously saved to <code>localStorage</code> — a small storage area built into your browser. If the browser crashes, your internet drops, or your session times out, the form data survives. When you come back, the form is restored exactly where you left off. No lost work.</p>
+
+    <p><strong>Keyboard navigation.</strong> Staff submit around 30 requests per week. The form is optimised for speed — you can tab between fields, type to search dropdowns, and submit without touching the mouse.</p>
+
+    <p><strong>Duplicate detection.</strong> If you submit a request for the same patient and same exam type within 24 hours, the app shows a warning: "You already submitted this combination earlier today. Continue anyway?" This catches accidental double-submissions.</p>
+
+    <div class="analogy">
+      A smart order form at a cafe. It remembers your usual order (<strong>auto-save</strong>), suggests your favourite drink first (<strong>recently-used practices</strong>), and warns you if you accidentally order the same thing twice (<strong>duplicate detection</strong>).
+    </div>
+
+    <!-- MCQ 3 -->
+    <div class="mcq" id="q3">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">form &bull; auto-save</span>
+      </div>
+      <div class="mcq-question">What happens to the form data if the browser crashes mid-entry?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">A</span>It's lost — the user has to start over</button>
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">B</span>It's saved to the database as a draft</button>
+        <button class="mcq-opt" onclick="answer('q3',this,true)"><span class="letter">C</span>It's recovered from localStorage auto-save</button>
+        <button class="mcq-opt" onclick="answer('q3',this,false)"><span class="letter">D</span>The server detects the crash and emails the user a recovery link</button>
+      </div>
+      <div class="mcq-explain" id="q3-explain"></div>
+    </div>
+
+    <!-- MCQ 4 -->
+    <div class="mcq" id="q4">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">form &bull; UX</span>
+      </div>
+      <div class="mcq-question">Why are recently-used practices shown first in the dropdown?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">A</span>Because those practices have the fastest delivery times</button>
+        <button class="mcq-opt" onclick="answer('q4',this,true)"><span class="letter">B</span>To speed up form entry — staff often send to the same practices</button>
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">C</span>Because those practices are closer to the patient's location</button>
+        <button class="mcq-opt" onclick="answer('q4',this,false)"><span class="letter">D</span>It's random — the order changes each time</button>
+      </div>
+      <div class="mcq-explain" id="q4-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 4: Server Actions vs API Routes -->
+    <!-- ============================================ -->
+    <h2><span class="num">04</span> Server Actions vs API Routes</h2>
+
+    <p>There are two ways to get data into the Requests system. Both end up doing the same thing, but they're designed for different users.</p>
+
+    <div class="hflow hflow-3">
+      <div class="vbox">
+        <span class="vbox-label amber">Web UI</span>
+        <div class="vbox-title">Server Actions</div>
+        <div class="vbox-desc">Staff fill out the form in their browser. When they click Submit, the form data goes directly to a server function — no separate API call needed.</div>
+      </div>
+      <div class="harrow">
+        <div class="harrow-stack"><div class="arrow-shaft"></div></div>
+        <div class="harrow-label">same result</div>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label blue">Validate + Save + Queue</span>
+        <div class="vbox-title">Server Processing</div>
+        <div class="vbox-desc">Validate inputs with Zod, save to database, generate PDF, queue delivery job to BullMQ.</div>
+      </div>
+      <div class="harrow">
+        <div class="harrow-stack"><div class="arrow-shaft"></div></div>
+        <div class="harrow-label">same result</div>
+      </div>
+      <div class="vbox">
+        <span class="vbox-label green">Synaptum 8</span>
+        <div class="vbox-title">API Routes</div>
+        <div class="vbox-desc">Synaptum 8 sends a JSON request to /api/v1/requests. Authenticated with an API key.</div>
+      </div>
+    </div>
+
+    <p><strong>Server Actions</strong> are a Next.js feature. When the staff member clicks "Submit" on the form, the browser sends the data directly to a function that runs on the server. There's no separate API endpoint involved — the form and the server function are connected directly by the framework. This is simpler and more secure because the server function is never exposed as a public URL.</p>
+
+    <p><strong>API Routes</strong> are traditional REST endpoints under <code>/api/v1/</code>. These exist for <strong>Synaptum 8</strong> — the letter-generation system — which needs to create imaging requests programmatically (without a human clicking buttons). API routes use API key authentication, rate limiting, and scoped permissions (covered in Module 6).</p>
+
+    <p>Both paths do the same thing: validate the data, save it to the database, generate a PDF, and queue a delivery job. The only difference is the front door.</p>
+
+    <div class="analogy">
+      Two doors to the same kitchen. The dining room door (<strong>server actions</strong>) is for walk-in customers — staff using the web form. The delivery entrance (<strong>API routes</strong>) is for Uber Eats — Synaptum 8 placing orders programmatically. Same chef, same food, different entrance.
+    </div>
+
+    <!-- MCQ 5 -->
+    <div class="mcq" id="q5">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">architecture &bull; server actions vs API</span>
+      </div>
+      <div class="mcq-question">What's the difference between server actions and API routes in Requests?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">A</span>Server actions are faster, API routes are slower</button>
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">B</span>Server actions save to the database, API routes only send emails</button>
+        <button class="mcq-opt" onclick="answer('q5',this,true)"><span class="letter">C</span>Server actions are for the web form (direct server calls), API routes are for programmatic access (Synaptum 8)</button>
+        <button class="mcq-opt" onclick="answer('q5',this,false)"><span class="letter">D</span>Server actions handle patient data, API routes handle non-patient data</button>
+      </div>
+      <div class="mcq-explain" id="q5-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 5: UI Components -->
+    <!-- ============================================ -->
+    <h2><span class="num">05</span> UI Components</h2>
+
+    <p>The interface is built from two tools working together: <strong>Radix UI</strong> and <strong>Tailwind CSS</strong>.</p>
+
+    <p><strong>Radix UI</strong> provides <strong>accessible, unstyled primitives</strong>. "Primitives" means basic building blocks — a dropdown, a dialog box, a toggle switch, a combobox. "Unstyled" means they have no visual design. They handle the hard parts like keyboard navigation, screen reader support, and focus management, but they look like nothing until you style them. "Accessible" means they work for people using assistive technology (screen readers, keyboard-only navigation).</p>
+
+    <p><strong>Tailwind CSS</strong> provides the visual styling. Instead of writing traditional CSS files, you add small utility classes directly to HTML elements. For example, <code>bg-white p-4 rounded-lg shadow</code> means "white background, padding of 4 units, rounded corners, drop shadow." It's like painting by numbers — each class does one small thing.</p>
+
+    <div class="analogy">
+      LEGO bricks. Radix UI provides the <strong>shapes</strong> — a button brick, a dropdown brick, a dialog brick. Tailwind CSS is the <strong>paint</strong>. You snap the bricks together and paint them to build the interface.
+    </div>
+
+    <h3>Key custom components</h3>
+
+    <table>
+      <tr><th>Component</th><th>What it does</th></tr>
+      <tr><td><strong>PracticeCombobox</strong></td><td>The searchable practice dropdown. Built on Radix's Combobox primitive. Sorts by usageCount, supports manual entry.</td></tr>
+      <tr><td><strong>ExamSelect</strong></td><td>The exam type dropdown. 27 options + "Other" with conditional text field.</td></tr>
+      <tr><td><strong>ProviderSelect</strong></td><td>Doctor + location dropdown. Pre-selects the logged-in user's default.</td></tr>
+      <tr><td><strong>PhiTextarea</strong></td><td>The patient details text area. Handles auto-save to localStorage.</td></tr>
+    </table>
+
+    <h3>Layout structure</h3>
+
+    <p>Every authenticated page shares the same layout:</p>
+
+    <div style="display:grid;grid-template-columns:160px 1fr;gap:14px;margin:24px 0">
+      <div class="vbox" style="text-align:left">
+        <span class="vbox-label purple">Sidebar</span>
+        <div style="font-size:.84rem;color:var(--text-soft);font-weight:300;line-height:1.8;margin-top:8px">
+          Dashboard<br>
+          New Request<br>
+          History<br>
+          <span style="color:var(--muted);border-top:1px solid var(--border);display:block;padding-top:6px;margin-top:4px">Admin:</span>
+          Practices<br>
+          Users<br>
+          API Keys
+        </div>
+      </div>
+      <div class="vbox" style="text-align:left">
+        <span class="vbox-label blue">Main Content Area</span>
+        <div style="font-size:.84rem;color:var(--text-soft);font-weight:300;line-height:1.6;margin-top:8px">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:10px">
+            <span style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.72rem">HEADER</span><br>
+            Page title + user info + logout button
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-height:80px">
+            <span style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:.72rem">PAGE CONTENT</span><br>
+            The form, table, dashboard, or detail view
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p>The sidebar is always visible on desktop. On mobile, it collapses into a hamburger menu. The admin links only appear if the logged-in user has the admin role.</p>
+
+    <!-- MCQ 6 -->
+    <div class="mcq" id="q6">
+      <div class="mcq-header">
+        <span class="mcq-badge">Checkpoint</span>
+        <span class="mcq-topic">components &bull; Radix UI</span>
+      </div>
+      <div class="mcq-question">What does Radix UI provide?</div>
+      <div class="mcq-options">
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">A</span>A complete design system with colours, fonts, and spacing</button>
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">B</span>A database layer for storing component state</button>
+        <button class="mcq-opt" onclick="answer('q6',this,true)"><span class="letter">C</span>Accessible, unstyled UI primitives (building blocks like buttons, dropdowns, dialogs)</button>
+        <button class="mcq-opt" onclick="answer('q6',this,false)"><span class="letter">D</span>A CSS framework with utility classes for styling</button>
+      </div>
+      <div class="mcq-explain" id="q6-explain"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SECTION 6: How the UI Knows Delivery Status -->
+    <!-- ============================================ -->
+    <h2><span class="num">06</span> How the UI Knows Delivery Status</h2>
+
+    <p>After a staff member submits the form, what happens next? The form doesn't send the email or fax directly — it queues a background job (covered in Module 5). So the user needs a way to check on the status of their request.</p>
+
+    <h3>Immediately after submission</h3>
+
+    <p>The user sees a <strong>success page</strong> with the request ID and a confirmation that the delivery has been queued. This happens almost instantly — the app doesn't wait for the email or fax to actually be sent.</p>
+
+    <h3>The delivery timeline</h3>
+
+    <p>Each request has a detail page at <code>/requests/[id]</code>. This page shows a <strong>delivery timeline</strong> — a visual progression of what happened to each delivery job:</p>
+
+    <div class="pipeline">
+      <div class="pipe-stage">
+        <div class="pipe-num">Status 1</div>
+        <div class="pipe-name">Queued</div>
+        <div class="pipe-desc">Job created, waiting in BullMQ</div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Status 2</div>
+        <div class="pipe-name">Processing</div>
+        <div class="pipe-desc">Worker has picked up the job</div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Status 3</div>
+        <div class="pipe-name">Sent</div>
+        <div class="pipe-desc">Email/fax dispatched, awaiting confirmation</div>
+      </div>
+      <div class="pipe-stage">
+        <div class="pipe-num">Status 4</div>
+        <div class="pipe-name">Delivered</div>
+        <div class="pipe-desc">Confirmed received (or Failed if not)</div>
+      </div>
+    </div>
+
+    <p>If a delivery <strong>fails</strong>, the status shows as red with an error message. The worker automatically retries with exponential backoff (up to 3 attempts), but if all retries fail, the delivery appears as permanently failed.</p>
+
+    <h3>The dashboard: failed deliveries at a glance</h3>
+
+    <p>Staff don't have to check each request individually. The <strong>dashboard</strong> (<code>/dashboard</code>) shows two things:</p>
+
+    <p><strong>Recent submissions</strong> — the last few requests, so you can quickly spot-check that things went through.</p>
+
+    <p><strong>Failed deliveries</strong> — any requests where delivery failed after all retry attempts. These are flagged for immediate attention. A staff member can view the request detail, see what went wrong, and manually trigger a re-send if needed.</p>
+
+    <div class="callout remember">
+      <strong>The page refreshes to check status.</strong> The delivery timeline is not a live real-time feed. Staff refresh the page (or navigate back to it from the history table) to see the latest status. For a system handling ~30 requests per week, this is more than sufficient — no need for WebSockets or push notifications.
+    </div>
+
+    <p>The <strong>history table</strong> at <code>/requests</code> shows all past requests with search and filters. You can search by patient name, filter by date range, filter by delivery status (delivered, failed, pending), or filter by radiology practice. Clicking any row takes you to the detail page.</p>
+
+    <!-- Score + nav -->
+    <div class="bottomnav">
+      <a href="06-api-layer.html">&larr; Prev: The API Layer</a>
+      <span class="mod-score" id="score"></span>
+      <a href="index.html">Back to Hub &rarr;</a>
+    </div>
+
+  </div>
+
+  <script>
+    const MODULE = '07';
+    const TOTAL_QUESTIONS = 6;
+
+    const EXPLANATIONS = {
+      q1: {
+        right: "Correct! In the App Router, the folder path maps directly to the URL. The file app/requests/new/page.tsx becomes the page at /requests/new. The folders are the URL segments, and the file must be called page.tsx.",
+        wrong: "Not quite. In Next.js App Router, folder structure equals URL structure. The file app/requests/new/page.tsx corresponds to the URL /requests/new. Each folder becomes a URL segment."
+      },
+      q2: {
+        right: "Correct! The three admin pages — /admin/practices, /admin/users, and /admin/api-keys — all require the admin role. Regular staff can access the dashboard, form, and history, but not admin pages.",
+        wrong: "Not quite. The admin pages are the three routes under /admin/: practices, users, and api-keys. The login pages are public (no login needed), and the staff pages (dashboard, requests) require login + MFA but not admin role."
+      },
+      q3: {
+        right: "Correct! The form continuously auto-saves to localStorage — a storage area built into the browser. When the user returns after a crash, the form restores exactly where they left off. No data is lost.",
+        wrong: "Not quite. The form auto-saves to localStorage, which is a storage area built into the browser that survives crashes and restarts. When the user opens the form again, the saved data is restored automatically."
+      },
+      q4: {
+        right: "Correct! Staff typically send requests to the same few radiology practices repeatedly. Sorting by usageCount puts the most frequently used practices at the top, saving time on every submission.",
+        wrong: "Not quite. The practices are sorted by usageCount — how often each one has been used. Staff tend to send to the same practices over and over, so putting those at the top saves time."
+      },
+      q5: {
+        right: "Correct! Server actions are the entry point for the web form — staff click Submit and the data goes directly to a server function. API routes are the entry point for Synaptum 8 — it sends JSON to /api/v1/requests. Both end up doing the same processing: validate, save, generate PDF, queue delivery.",
+        wrong: "Not quite. Server actions are for the web form (the browser submits directly to a server function). API routes are for Synaptum 8 (programmatic access via /api/v1/). Both lead to the same outcome: validation, database save, PDF generation, and delivery queuing."
+      },
+      q6: {
+        right: "Correct! Radix UI provides accessible, unstyled primitives — the functional building blocks like dropdowns, dialogs, toggles, and comboboxes. They handle keyboard navigation and screen reader support, but have no visual styling. Tailwind CSS is used separately for the visual design.",
+        wrong: "Not quite. Radix UI provides accessible, unstyled UI primitives — building blocks like buttons, dropdowns, and dialogs that handle functionality (keyboard navigation, accessibility) without any visual design. Tailwind CSS handles the styling separately."
+      }
+    };
+
+    function answer(qId, btn, isCorrect) {
+      const mcq = document.getElementById(qId);
+      const buttons = mcq.querySelectorAll('.mcq-opt');
+      const explain = document.getElementById(qId + '-explain');
+
+      // Disable all buttons
+      buttons.forEach(b => b.disabled = true);
+
+      if (isCorrect) {
+        btn.classList.add('correct');
+        explain.className = 'mcq-explain show right';
+        explain.innerHTML = '<strong>Correct!</strong> ' + EXPLANATIONS[qId].right.replace('Correct! ', '');
+      } else {
+        btn.classList.add('wrong');
+        // Highlight the correct answer
+        buttons.forEach(b => {
+          if (b.getAttribute('onclick') && b.getAttribute('onclick').includes('true')) {
+            b.classList.add('correct');
+          }
+        });
+        explain.className = 'mcq-explain show wrong';
+        explain.innerHTML = '<strong>Not quite.</strong> ' + EXPLANATIONS[qId].wrong.replace('Not quite. ', '');
+      }
+
+      saveProgress();
+    }
+
+    function saveProgress() {
+      const store = JSON.parse(localStorage.getItem('requests_learning') || '{}');
+      if (!store.modules) store.modules = {};
+      if (!store.modules[MODULE]) store.modules[MODULE] = { answers: {} };
+
+      let correct = 0;
+      let answered = 0;
+
+      for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+        const qId = 'q' + i;
+        const mcq = document.getElementById(qId);
+        const buttons = mcq.querySelectorAll('.mcq-opt');
+        let wasAnswered = false;
+        let wasCorrect = false;
+
+        buttons.forEach(b => {
+          if (b.classList.contains('correct') || b.classList.contains('wrong')) {
+            wasAnswered = true;
+          }
+          if (b.classList.contains('correct') && !b.classList.contains('wrong') &&
+              b.getAttribute('onclick') && b.getAttribute('onclick').includes('true') &&
+              b.disabled) {
+            // This is the correct button that was clicked
+          }
+        });
+
+        if (wasAnswered) {
+          answered++;
+          // Check if the user got it right (no 'wrong' class on any button means they picked correctly)
+          let gotWrong = false;
+          buttons.forEach(b => {
+            if (b.classList.contains('wrong')) gotWrong = true;
+          });
+          if (!gotWrong) correct++;
+          store.modules[MODULE].answers[qId] = !gotWrong;
+        }
+      }
+
+      store.modules[MODULE].score = correct;
+      store.modules[MODULE].total = TOTAL_QUESTIONS;
+      store.modules[MODULE].completed = answered === TOTAL_QUESTIONS;
+
+      localStorage.setItem('requests_learning', JSON.stringify(store));
+      updateScore(correct, answered);
+    }
+
+    function updateScore(correct, answered) {
+      const el = document.getElementById('score');
+      if (answered > 0) {
+        el.textContent = correct + ' / ' + answered + ' correct';
+      }
+    }
+
+    function restore() {
+      const store = JSON.parse(localStorage.getItem('requests_learning') || '{}');
+      if (!store.modules || !store.modules[MODULE]) return;
+
+      const answers = store.modules[MODULE].answers || {};
+      let correct = 0;
+      let answered = 0;
+
+      for (const [qId, wasCorrect] of Object.entries(answers)) {
+        const mcq = document.getElementById(qId);
+        if (!mcq) continue;
+
+        const buttons = mcq.querySelectorAll('.mcq-opt');
+        const explain = document.getElementById(qId + '-explain');
+        answered++;
+
+        buttons.forEach(b => {
+          b.disabled = true;
+          const isCorrectOpt = b.getAttribute('onclick') && b.getAttribute('onclick').includes('true');
+          if (isCorrectOpt) {
+            b.classList.add('correct');
+          }
+        });
+
+        if (wasCorrect) {
+          correct++;
+          explain.className = 'mcq-explain show right';
+          explain.innerHTML = '<strong>Correct!</strong> ' + EXPLANATIONS[qId].right.replace('Correct! ', '');
+        } else {
+          // Find which non-correct button was clicked — we can't know exactly, so just show explanation
+          explain.className = 'mcq-explain show wrong';
+          explain.innerHTML = '<strong>Not quite.</strong> ' + EXPLANATIONS[qId].wrong.replace('Not quite. ', '');
+        }
+      }
+
+      updateScore(correct, answered);
+    }
+
+    // Restore previous answers on page load
+    restore();
+  </script>
+</body>
+</html>

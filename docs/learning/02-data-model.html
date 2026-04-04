@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 02: The Data Model — Requests Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #161924;
+    --surface2: #1e2130;
+    --surface3: #262a3a;
+    --border: #2c3044;
+    --text: #e8e4df;
+    --text-soft: #b0aaa2;
+    --muted: #7a7670;
+    --amber: #f0a85c;
+    --amber-dim: rgba(240,168,92,0.12);
+    --amber-mid: rgba(240,168,92,0.25);
+    --green: #5ce08a;
+    --green-dim: rgba(92,224,138,0.12);
+    --red: #e05c6f;
+    --red-dim: rgba(224,92,111,0.12);
+    --blue: #5ca8f0;
+    --blue-dim: rgba(92,168,240,0.12);
+    --purple: #a07cf0;
+    --purple-dim: rgba(160,124,240,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  /* Top Navigation */
+  .topnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+
+  .topnav a {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .topnav a:hover {
+    color: var(--amber);
+  }
+
+  .topnav .module-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 3rem;
+  }
+
+  header .module-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--amber);
+    margin-bottom: 1rem;
+    letter-spacing: 0.03em;
+  }
+
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* Headings */
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 2rem 0 0.8rem;
+  }
+
+  /* Body text */
+  p {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: var(--amber);
+  }
+
+  /* Vertical box (table/entity representation) */
+  .vbox {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .vbox-header {
+    padding: 0.8rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vbox-header.amber { background: var(--amber-dim); color: var(--amber); }
+  .vbox-header.green { background: var(--green-dim); color: var(--green); }
+  .vbox-header.blue { background: var(--blue-dim); color: var(--blue); }
+  .vbox-header.red { background: var(--red-dim); color: var(--red); }
+  .vbox-header.purple { background: var(--purple-dim); color: var(--purple); }
+
+  .vbox-row {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vbox-row:last-child { border-bottom: none; }
+
+  .vbox-row .field-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .vbox-row .field-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .vbox-row .encrypted-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    background: var(--red-dim);
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  /* Horizontal flow (relationship diagrams) */
+  .hflow {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.6rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    flex-wrap: wrap;
+  }
+
+  .hflow .entity {
+    padding: 0.3rem 0.7rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .hflow .entity.amber { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+  .hflow .entity.green { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .hflow .entity.blue { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+  .hflow .entity.red { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .hflow .entity.purple { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+
+  .harrow {
+    color: var(--muted);
+    font-size: 1rem;
+    padding: 0 0.2rem;
+  }
+
+  .harrow-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    padding: 0 0.2rem;
+    white-space: nowrap;
+  }
+
+  /* Callout boxes */
+  .callout {
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    border-left: 3px solid;
+  }
+
+  .callout.info {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+    color: var(--text-soft);
+  }
+
+  .callout.warn {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+    color: var(--text-soft);
+  }
+
+  .callout.success {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--text-soft);
+  }
+
+  .callout .callout-title {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  /* Analogy box */
+  .analogy {
+    padding: 1.2rem 1.4rem;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+    background: var(--purple-dim);
+    border: 1px solid rgba(160,124,240,0.2);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-soft);
+  }
+
+  .analogy .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+
+  thead th {
+    background: var(--surface2);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: var(--surface); }
+
+  /* MCQ */
+  .mcq {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .mcq-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    margin-bottom: 0.6rem;
+  }
+
+  .mcq-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mcq-option {
+    padding: 0.7rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: inherit;
+    width: 100%;
+  }
+
+  .mcq-option:hover {
+    border-color: var(--amber);
+    background: var(--amber-dim);
+    color: var(--text);
+  }
+
+  .mcq-option.correct {
+    border-color: var(--green);
+    background: var(--green-dim);
+    color: var(--green);
+    cursor: default;
+  }
+
+  .mcq-option.incorrect {
+    border-color: var(--red);
+    background: var(--red-dim);
+    color: var(--red);
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  .mcq-option.dimmed {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .mcq-feedback {
+    margin-top: 0.8rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .mcq-feedback.correct {
+    background: var(--green-dim);
+    color: var(--green);
+    display: block;
+  }
+
+  .mcq-feedback.incorrect {
+    background: var(--red-dim);
+    color: var(--red);
+    display: block;
+  }
+
+  /* Status pill */
+  .status-pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+  }
+
+  .status-pill.pending { background: var(--amber-dim); color: var(--amber); }
+  .status-pill.delivered { background: var(--green-dim); color: var(--green); }
+  .status-pill.partial { background: var(--blue-dim); color: var(--blue); }
+  .status-pill.failed { background: var(--red-dim); color: var(--red); }
+
+  /* Relationship diagram */
+  .rel-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .rel-diagram .rel-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .rel-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .rel-row + .rel-row {
+    border-top: 1px solid var(--border);
+  }
+
+  /* Tables grid — for showing all 8 tables at once */
+  .tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+    margin: 1.5rem 0;
+  }
+
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .table-card .table-card-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+  .table-card .table-card-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* Bottom navigation */
+  .bottomnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .bottomnav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .bottomnav a:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 0 1rem 3rem; }
+    header h1 { font-size: 2rem; }
+    h2 { font-size: 1.3rem; }
+    .hflow { font-size: 0.75rem; gap: 0.2rem; }
+    .tables-grid { grid-template-columns: repeat(2, 1fr); }
+    .vbox-row { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+    .bottomnav { flex-direction: column; gap: 0.8rem; }
+    .bottomnav a { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Top Navigation -->
+  <nav class="topnav">
+    <a href="index.html">&larr; Back to hub</a>
+    <span class="module-indicator">Module 02 / 07</span>
+    <a href="01-big-picture.html">&larr; Prev</a>
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <div class="module-label">Module 02 &middot; ~12 min</div>
+    <h1>The Data Model</h1>
+    <p>Where does all the information live? In this module, you will learn about the database tables that store everything from patient details to delivery tracking.</p>
+  </header>
+
+  <!-- SECTION 1: Why a Database? -->
+  <h2>1. Why a Database?</h2>
+
+  <p>When a doctor submits an imaging request, the system needs to remember it. Who was the patient? Which radiology practice? Did the fax go through? All of this has to live somewhere permanent, not just in the browser.</p>
+
+  <p>That somewhere is a <strong>database</strong> &mdash; a structured way to store and retrieve data.</p>
+
+  <div class="analogy">
+    <div class="analogy-label">Analogy</div>
+    Think of a <strong>filing cabinet</strong>. Each drawer is a <strong>table</strong>. Each folder in the drawer is a <strong>row</strong> (one record). The label on each folder tells you what is inside &mdash; that is a <strong>column</strong> (a field). When you want to find a patient's imaging request, you open the right drawer, look at the labels, and pull the folder.
+  </div>
+
+  <p>Requests uses two key technologies for its database layer:</p>
+
+  <div class="vbox">
+    <div class="vbox-header blue">PostgreSQL &mdash; The Database</div>
+    <div class="vbox-row">
+      <span class="field-name">What is it?</span>
+      <span class="field-note">An open-source database engine. Free, battle-tested, used by major companies worldwide.</span>
+    </div>
+    <div class="vbox-row">
+      <span class="field-name">Why this one?</span>
+      <span class="field-note">Supports pgcrypto &mdash; a built-in extension for encrypting individual fields. Critical for patient data.</span>
+    </div>
+  </div>
+
+  <div class="vbox">
+    <div class="vbox-header green">Prisma &mdash; The ORM</div>
+    <div class="vbox-row">
+      <span class="field-name">What is it?</span>
+      <span class="field-note">A tool that lets TypeScript code talk to the database without writing raw SQL.</span>
+    </div>
+    <div class="vbox-row">
+      <span class="field-name">What is an ORM?</span>
+      <span class="field-note">Object-Relational Mapper. Translates between code objects and database rows.</span>
+    </div>
+    <div class="vbox-row">
+      <span class="field-name">Why it helps</span>
+      <span class="field-note">Developers write TypeScript instead of SQL. Prisma generates the SQL behind the scenes.</span>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">Jargon buster</div>
+    <strong>SQL</strong> (Structured Query Language) is the language databases understand. Instead of writing SQL directly, Prisma lets us write TypeScript and it translates. Think of Prisma as an interpreter between two people who speak different languages.
+  </div>
+
+  <!-- SECTION 2: The Eight Tables -->
+  <h2>2. The Eight Tables</h2>
+
+  <p>The Requests database has <strong>eight tables</strong>. Each one stores a different type of information. Here is a bird's-eye view:</p>
+
+  <div class="tables-grid">
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--amber);">User</div>
+      <div class="table-card-desc">Staff accounts and login details</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--green);">Provider</div>
+      <div class="table-card-desc">Referring doctors + provider numbers</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--blue);">RadiologyPractice</div>
+      <div class="table-card-desc">Where requests get sent</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--red);">ImagingRequest</div>
+      <div class="table-card-desc">The core table &mdash; one row per request</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--purple);">DeliveryJob</div>
+      <div class="table-card-desc">Tracks each delivery attempt</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--text-soft);">AuditLog</div>
+      <div class="table-card-desc">Who did what, when</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--text-soft);">Session</div>
+      <div class="table-card-desc">Login sessions</div>
+    </div>
+    <div class="table-card">
+      <div class="table-card-name" style="color: var(--text-soft);">ApiKey</div>
+      <div class="table-card-desc">Keys for Synaptum 8 integration</div>
+    </div>
+  </div>
+
+  <p>Let us look at each table in detail.</p>
+
+  <!-- User -->
+  <h3>User</h3>
+  <p>Stores staff accounts. There are 3 doctors and 1 admin. Each user must have MFA (multi-factor authentication) enabled to log in.</p>
+
+  <div class="vbox">
+    <div class="vbox-header amber">User</div>
+    <div class="vbox-row"><span class="field-name">email</span><span class="field-note">Login email address</span></div>
+    <div class="vbox-row"><span class="field-name">name</span><span class="field-note">Display name</span></div>
+    <div class="vbox-row"><span class="field-name">passwordHash</span><span class="field-note">Hashed password (never stored in plain text)</span></div>
+    <div class="vbox-row"><span class="field-name">role</span><span class="field-note">admin or staff</span></div>
+    <div class="vbox-row"><span class="field-name">mfaSecret</span><span class="field-note">Secret key for TOTP authenticator app</span></div>
+    <div class="vbox-row"><span class="field-name">mfaEnabled</span><span class="field-note">Must be true to access the system</span></div>
+    <div class="vbox-row"><span class="field-name">defaultProviderId</span><span class="field-note">Links to their most-used provider number</span></div>
+    <div class="vbox-row"><span class="field-name">failedAttempts</span><span class="field-note">Counter for failed logins</span></div>
+    <div class="vbox-row"><span class="field-name">lockedAt</span><span class="field-note">Timestamp if the account gets locked out</span></div>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">Jargon buster</div>
+    <strong>MFA / TOTP</strong> &mdash; Multi-Factor Authentication means you need something <em>beyond</em> your password to log in (like a code from an authenticator app on your phone). TOTP stands for Time-based One-Time Password &mdash; the 6-digit code that changes every 30 seconds.
+  </div>
+
+  <!-- Provider -->
+  <h3>Provider</h3>
+  <p>A "provider" is a doctor-plus-location combination. CURA has 3 doctors, but they work at multiple locations. Each location has its own provider number. 3 doctors across multiple locations gives us 7 provider records.</p>
+
+  <div class="vbox">
+    <div class="vbox-header green">Provider</div>
+    <div class="vbox-row"><span class="field-name">doctorName</span><span class="field-note">e.g. "Dr Winters"</span></div>
+    <div class="vbox-row"><span class="field-name">providerNumber</span><span class="field-note">Unique Medicare provider number</span></div>
+    <div class="vbox-row"><span class="field-name">location</span><span class="field-note">Clinic address for this number</span></div>
+    <div class="vbox-row"><span class="field-name">signatureImage</span><span class="field-note">Doctor's signature for the PDF</span></div>
+  </div>
+
+  <!-- RadiologyPractice -->
+  <h3>RadiologyPractice</h3>
+  <p>Each row is a radiology clinic where imaging requests can be sent. The <code>usageCount</code> field tracks how often each practice is used, so the most popular ones appear at the top of the dropdown.</p>
+
+  <div class="vbox">
+    <div class="vbox-header blue">RadiologyPractice</div>
+    <div class="vbox-row"><span class="field-name">name</span><span class="field-note">Practice name</span></div>
+    <div class="vbox-row"><span class="field-name">address</span><span class="field-note">Street address</span></div>
+    <div class="vbox-row"><span class="field-name">phone</span><span class="field-note">Contact number</span></div>
+    <div class="vbox-row"><span class="field-name">fax</span><span class="field-note">Fax number for deliveries</span></div>
+    <div class="vbox-row"><span class="field-name">email</span><span class="field-note">Email address for deliveries</span></div>
+    <div class="vbox-row"><span class="field-name">usageCount</span><span class="field-note">How many times this practice has been used</span></div>
+    <div class="vbox-row"><span class="field-name">lastUsedAt</span><span class="field-note">When it was last sent a request</span></div>
+  </div>
+
+  <!-- ImagingRequest -->
+  <h3>ImagingRequest</h3>
+  <p>This is the heart of the system. Every time a doctor submits a request form, one row is created here. Notice the two encrypted fields &mdash; those hold patient health information.</p>
+
+  <div class="vbox">
+    <div class="vbox-header red">ImagingRequest</div>
+    <div class="vbox-row"><span class="field-name">practiceId</span><span class="field-note">Which radiology practice</span></div>
+    <div class="vbox-row"><span class="field-name">rawPhiInput</span><span class="encrypted-badge">ENCRYPTED</span></div>
+    <div class="vbox-row"><span class="field-name">parsedPhi</span><span class="encrypted-badge">ENCRYPTED</span></div>
+    <div class="vbox-row"><span class="field-name">examType</span><span class="field-note">e.g. "MRI Brain", "CT Chest"</span></div>
+    <div class="vbox-row"><span class="field-name">examOther</span><span class="field-note">Free text if examType is "Other"</span></div>
+    <div class="vbox-row"><span class="field-name">clinicalDetails</span><span class="field-note">Why the scan is needed</span></div>
+    <div class="vbox-row"><span class="field-name">contrastReaction</span><span class="field-note">Previous contrast allergy?</span></div>
+    <div class="vbox-row"><span class="field-name">egfr</span><span class="field-note">Kidney function test result</span></div>
+    <div class="vbox-row"><span class="field-name">providerId</span><span class="field-note">Which doctor/location is referring</span></div>
+    <div class="vbox-row"><span class="field-name">reportByBhatia</span><span class="field-note">Report back to Dr Bhatia?</span></div>
+    <div class="vbox-row"><span class="field-name">patientEmail</span><span class="field-note">Optional: email a copy to the patient</span></div>
+    <div class="vbox-row"><span class="field-name">sendToPatient</span><span class="field-note">Whether to send the patient a copy</span></div>
+    <div class="vbox-row"><span class="field-name">deliveryMethod</span><span class="field-note">email, fax, or both</span></div>
+    <div class="vbox-row"><span class="field-name">status</span><span class="field-note">pending / delivered / partial / failed</span></div>
+    <div class="vbox-row"><span class="field-name">pdfPath</span><span class="field-note">Path to the generated PDF file</span></div>
+    <div class="vbox-row"><span class="field-name">createdBy</span><span class="field-note">Which user submitted this</span></div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">Why two PHI fields?</div>
+    <strong>rawPhiInput</strong> is exactly what the doctor typed into the patient details box. <strong>parsedPhi</strong> is the structured version after the system has extracted the name, date of birth, Medicare number, phone, etc. Both are stored encrypted because they contain patient health information.
+  </div>
+
+  <!-- DeliveryJob -->
+  <h3>DeliveryJob</h3>
+  <p>One imaging request can produce <strong>multiple delivery jobs</strong>. For example: an email to the radiology practice, a fax to the radiology practice, a filing copy to CURA, and optionally an email to the patient. Each one is tracked separately.</p>
+
+  <div class="vbox">
+    <div class="vbox-header purple">DeliveryJob</div>
+    <div class="vbox-row"><span class="field-name">requestId</span><span class="field-note">Links back to the ImagingRequest</span></div>
+    <div class="vbox-row"><span class="field-name">type</span><span class="field-note">provider_email / provider_fax / filing_email / patient_email</span></div>
+    <div class="vbox-row"><span class="field-name">status</span><span class="field-note">queued / processing / sent / delivered / failed</span></div>
+    <div class="vbox-row"><span class="field-name">attempts</span><span class="field-note">How many times delivery has been tried</span></div>
+    <div class="vbox-row"><span class="field-name">lastError</span><span class="field-note">Error message if something went wrong</span></div>
+    <div class="vbox-row"><span class="field-name">externalId</span><span class="field-note">Fax ID from Notifyre (for tracking)</span></div>
+    <div class="vbox-row"><span class="field-name">confirmedAt</span><span class="field-note">When delivery was confirmed successful</span></div>
+  </div>
+
+  <!-- AuditLog -->
+  <h3>AuditLog</h3>
+  <p>Every action in the system is recorded here. Who logged in? Who viewed a request? Who changed a radiology practice? It records the <em>action</em> and a reference ID, but <strong>never any patient data</strong>.</p>
+
+  <div class="vbox">
+    <div class="vbox-header">AuditLog</div>
+    <div class="vbox-row"><span class="field-name">userId</span><span class="field-note">Who performed the action</span></div>
+    <div class="vbox-row"><span class="field-name">action</span><span class="field-note">e.g. "created", "viewed", "updated"</span></div>
+    <div class="vbox-row"><span class="field-name">resourceType</span><span class="field-note">e.g. "ImagingRequest", "User"</span></div>
+    <div class="vbox-row"><span class="field-name">resourceId</span><span class="field-note">The ID of the record involved</span></div>
+    <div class="vbox-row"><span class="field-name">details</span><span class="field-note">Extra context (no PHI)</span></div>
+    <div class="vbox-row"><span class="field-name">ipAddress</span><span class="field-note">Where the action came from</span></div>
+    <div class="vbox-row"><span class="field-name">apiKeyId</span><span class="field-note">If the action came from the API</span></div>
+  </div>
+
+  <!-- Session -->
+  <h3>Session</h3>
+  <p>Tracks who is currently logged in. When you log in, a session row is created. When it expires or you log out, it is removed.</p>
+
+  <div class="vbox">
+    <div class="vbox-header">Session</div>
+    <div class="vbox-row"><span class="field-name">token</span><span class="field-note">Unique session identifier</span></div>
+    <div class="vbox-row"><span class="field-name">userId</span><span class="field-note">Who is logged in</span></div>
+    <div class="vbox-row"><span class="field-name">expiresAt</span><span class="field-note">When this session expires</span></div>
+    <div class="vbox-row"><span class="field-name">ipAddress</span><span class="field-note">Where the login came from</span></div>
+  </div>
+
+  <!-- ApiKey -->
+  <h3>ApiKey</h3>
+  <p>Synaptum 8 (the future practice management system) can create imaging requests through an API instead of the web form. Each API key is stored as a <strong>hash</strong>, not the actual key, so even a database breach would not reveal the real key.</p>
+
+  <div class="vbox">
+    <div class="vbox-header">ApiKey</div>
+    <div class="vbox-row"><span class="field-name">name</span><span class="field-note">Friendly label, e.g. "Synaptum 8 Production"</span></div>
+    <div class="vbox-row"><span class="field-name">keyHash</span><span class="field-note">SHA-256 hash of the actual key</span></div>
+    <div class="vbox-row"><span class="field-name">keyPrefix</span><span class="field-note">First few characters for identification</span></div>
+    <div class="vbox-row"><span class="field-name">userId</span><span class="field-note">Which user created this key</span></div>
+    <div class="vbox-row"><span class="field-name">scopes</span><span class="field-note">What the key is allowed to do</span></div>
+    <div class="vbox-row"><span class="field-name">webhookUrl</span><span class="field-note">Where to send delivery status updates</span></div>
+    <div class="vbox-row"><span class="field-name">webhookSecret</span><span class="field-note">Secret for verifying webhook calls</span></div>
+    <div class="vbox-row"><span class="field-name">allowedIps</span><span class="field-note">Only accept requests from these IP addresses</span></div>
+    <div class="vbox-row"><span class="field-name">expiresAt</span><span class="field-note">When the key stops working</span></div>
+    <div class="vbox-row"><span class="field-name">revokedAt</span><span class="field-note">When the key was manually disabled</span></div>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">Jargon buster</div>
+    <strong>SHA-256 hash</strong> &mdash; A one-way mathematical function that converts data into a fixed-length string of characters. You can turn a key into a hash, but you cannot turn a hash back into the key. This means the real API key is shown once when created, then never stored again.
+  </div>
+
+  <!-- MCQ 1 -->
+  <div class="mcq" id="mcq1">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">How many tables does the database have?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq1', this, false)">6</button>
+      <button class="mcq-option" onclick="answer('mcq1', this, true)">8</button>
+      <button class="mcq-option" onclick="answer('mcq1', this, false)">10</button>
+      <button class="mcq-option" onclick="answer('mcq1', this, false)">4</button>
+    </div>
+    <div class="mcq-feedback" id="mcq1-feedback"></div>
+  </div>
+
+  <!-- MCQ 2 -->
+  <div class="mcq" id="mcq2">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">Which table stores patient health information?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq2', this, false)">User</button>
+      <button class="mcq-option" onclick="answer('mcq2', this, false)">DeliveryJob</button>
+      <button class="mcq-option" onclick="answer('mcq2', this, true)">ImagingRequest (rawPhiInput and parsedPhi fields)</button>
+      <button class="mcq-option" onclick="answer('mcq2', this, false)">AuditLog</button>
+    </div>
+    <div class="mcq-feedback" id="mcq2-feedback"></div>
+  </div>
+
+  <!-- SECTION 3: Relationships -->
+  <h2>3. How the Tables Connect</h2>
+
+  <p>Tables do not exist in isolation. They are linked together using <strong>relationships</strong>. A relationship means one table references another using an ID field.</p>
+
+  <div class="analogy">
+    <div class="analogy-label">Analogy</div>
+    Imagine a folder in the "Imaging Requests" drawer has a sticky note that says "See Provider #4" and another that says "See User #2". You would go to the Provider drawer and pull folder #4, then the User drawer and pull folder #2. That is a relationship &mdash; one record points to another.
+  </div>
+
+  <p>Here are the connections between tables:</p>
+
+  <div class="rel-diagram">
+    <div class="rel-title">Relationships</div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity amber">User</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">creates many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity red">ImagingRequest</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity amber">User</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">has default</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity green">Provider</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity green">Provider</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">used in many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity red">ImagingRequest</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity blue">RadiologyPractice</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">receives many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity red">ImagingRequest</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity red">ImagingRequest</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">has many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity purple">DeliveryJob</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity amber">User</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">generates many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity">AuditLog</span>
+      </span>
+    </div>
+
+    <div class="rel-row">
+      <span class="hflow">
+        <span class="entity amber">User</span>
+        <span class="harrow">&rarr;</span>
+        <span class="harrow-label">owns many</span>
+        <span class="harrow">&rarr;</span>
+        <span class="entity">ApiKey</span>
+      </span>
+    </div>
+  </div>
+
+  <p>The key pattern here is <strong>"one-to-many"</strong>. One user creates many requests. One request creates many delivery jobs. One radiology practice receives many requests. The "many" side stores the ID of the "one" side.</p>
+
+  <div class="callout info">
+    <div class="callout-title">Jargon buster</div>
+    <strong>One-to-many</strong> &mdash; A relationship where one record in table A can be linked to many records in table B. Example: one User can create 100 ImagingRequests, but each ImagingRequest has exactly one creator.
+  </div>
+
+  <!-- MCQ 3 -->
+  <div class="mcq" id="mcq3">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">If a doctor sends an MRI request via both email and fax, how many DeliveryJob rows are created?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq3', this, false)">1 (one job covers everything)</button>
+      <button class="mcq-option" onclick="answer('mcq3', this, false)">2 (one email + one fax)</button>
+      <button class="mcq-option" onclick="answer('mcq3', this, true)">At least 3 (provider email + provider fax + filing email, possibly 4 with patient email)</button>
+      <button class="mcq-option" onclick="answer('mcq3', this, false)">Exactly 4 (always four jobs)</button>
+    </div>
+    <div class="mcq-feedback" id="mcq3-feedback"></div>
+  </div>
+
+  <!-- SECTION 4: The Encryption Story -->
+  <h2>4. The Encryption Story</h2>
+
+  <p>Two fields in the ImagingRequest table &mdash; <code>rawPhiInput</code> and <code>parsedPhi</code> &mdash; contain patient health information. Names, dates of birth, Medicare numbers, phone numbers. This data is <strong>encrypted</strong> using a PostgreSQL extension called <strong>pgcrypto</strong>.</p>
+
+  <div class="analogy">
+    <div class="analogy-label">Analogy</div>
+    Think of a <strong>lockbox inside the filing cabinet</strong>. Someone might break into the office and open the filing cabinet. But each patient folder is inside its own padlocked box. Without the key to those lockboxes, the folders are unreadable.
+  </div>
+
+  <p><strong>What does "field-level encryption" mean?</strong> It means individual columns (fields) are encrypted, not just the entire database. Most of the data in the database &mdash; like exam types, delivery statuses, and provider numbers &mdash; is stored normally. Only the fields that contain patient information get the extra layer of encryption.</p>
+
+  <p><strong>Where is the encryption key?</strong> The key used to encrypt and decrypt patient data is stored <em>separately</em> from the database itself. It lives in the server's environment variables. This means:</p>
+
+  <ul style="margin: 0.5rem 0 1rem 1.5rem; color: var(--text-soft); font-size: 0.95rem; line-height: 1.75;">
+    <li>If someone steals the database file, they cannot read patient data.</li>
+    <li>If someone gets the encryption key but not the database, they have nothing to decrypt.</li>
+    <li>You need <strong>both</strong> to access PHI.</li>
+  </ul>
+
+  <div class="callout warn">
+    <div class="callout-title">API keys are hashed too</div>
+    The ApiKey table stores <code>keyHash</code> instead of the actual key. This uses SHA-256, a one-way hash. Even if the database is stolen, the attacker cannot recover the real API keys. The actual key is shown once when created, then never stored again.
+  </div>
+
+  <!-- MCQ 4 -->
+  <div class="mcq" id="mcq4">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What does pgcrypto do?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq4', this, false)">Encrypts the entire database file</button>
+      <button class="mcq-option" onclick="answer('mcq4', this, true)">Encrypts individual fields (like patient data) within the database</button>
+      <button class="mcq-option" onclick="answer('mcq4', this, false)">Generates PDF documents</button>
+      <button class="mcq-option" onclick="answer('mcq4', this, false)">Manages user passwords</button>
+    </div>
+    <div class="mcq-feedback" id="mcq4-feedback"></div>
+  </div>
+
+  <!-- MCQ 5 -->
+  <div class="mcq" id="mcq5">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">Why is the API key stored as a SHA-256 hash instead of plaintext?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq5', this, false)">It makes the key easier to type</button>
+      <button class="mcq-option" onclick="answer('mcq5', this, false)">It saves storage space in the database</button>
+      <button class="mcq-option" onclick="answer('mcq5', this, true)">So even if the database is compromised, the actual API key cannot be recovered</button>
+      <button class="mcq-option" onclick="answer('mcq5', this, false)">It is required by PostgreSQL</button>
+    </div>
+    <div class="mcq-feedback" id="mcq5-feedback"></div>
+  </div>
+
+  <!-- SECTION 5: Status Tracking -->
+  <h2>5. Status Tracking</h2>
+
+  <p>Each ImagingRequest has a <code>status</code> field. But this status is not set manually &mdash; it is <strong>derived</strong> (calculated) from the statuses of its delivery jobs. Here is how:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Request Status</th>
+          <th>What It Means</th>
+          <th>Delivery Job States</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="status-pill pending">pending</span></td>
+          <td>Still in progress</td>
+          <td>Jobs are queued or processing</td>
+        </tr>
+        <tr>
+          <td><span class="status-pill delivered">delivered</span></td>
+          <td>Everything succeeded</td>
+          <td>All jobs completed successfully</td>
+        </tr>
+        <tr>
+          <td><span class="status-pill partial">partial</span></td>
+          <td>Some worked, some did not</td>
+          <td>Some jobs succeeded, some failed</td>
+        </tr>
+        <tr>
+          <td><span class="status-pill failed">failed</span></td>
+          <td>Nothing got through</td>
+          <td>All jobs failed</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>For example: a request sent via both email and fax. The email goes through, but the fax fails. The request status becomes <span class="status-pill partial">partial</span> because some delivery jobs succeeded and some did not.</p>
+
+  <div class="callout success">
+    <div class="callout-title">Why this matters</div>
+    The dashboard shows doctors the status of their requests at a glance. A <span class="status-pill partial">partial</span> status tells them something needs attention &mdash; maybe the fax number was wrong, or the radiology practice's fax machine was offline.
+  </div>
+
+  <!-- MCQ 6 -->
+  <div class="mcq" id="mcq6">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What status would a request have if the email succeeded but the fax failed?</div>
+    <div class="mcq-options">
+      <button class="mcq-option" onclick="answer('mcq6', this, false)">pending</button>
+      <button class="mcq-option" onclick="answer('mcq6', this, false)">delivered</button>
+      <button class="mcq-option" onclick="answer('mcq6', this, true)">partial</button>
+      <button class="mcq-option" onclick="answer('mcq6', this, false)">failed</button>
+    </div>
+    <div class="mcq-feedback" id="mcq6-feedback"></div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottomnav">
+    <a href="01-big-picture.html">&larr; Prev: The Big Picture</a>
+    <a href="03-request-lifecycle.html">Next: The Request Lifecycle &rarr;</a>
+  </nav>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'requests_learning';
+  const MODULE = '02';
+  const TOTAL_QUESTIONS = 6;
+  let answeredCorrectly = 0;
+
+  function getProgress() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveProgress(progress) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function answer(mcqId, btn, isCorrect) {
+    const mcq = document.getElementById(mcqId);
+    const feedback = document.getElementById(mcqId + '-feedback');
+    const options = mcq.querySelectorAll('.mcq-option');
+
+    // Prevent re-answering
+    if (mcq.dataset.answered === 'true') return;
+    mcq.dataset.answered = 'true';
+
+    // Disable all options
+    options.forEach(opt => {
+      opt.classList.add('dimmed');
+      opt.style.pointerEvents = 'none';
+    });
+
+    if (isCorrect) {
+      btn.classList.remove('dimmed');
+      btn.classList.add('correct');
+      feedback.className = 'mcq-feedback correct';
+      feedback.textContent = 'Correct!';
+      answeredCorrectly++;
+    } else {
+      btn.classList.remove('dimmed');
+      btn.classList.add('incorrect');
+      // Highlight the correct answer
+      options.forEach(opt => {
+        if (opt.getAttribute('onclick').includes('true')) {
+          opt.classList.remove('dimmed');
+          opt.classList.add('correct');
+        }
+      });
+      feedback.className = 'mcq-feedback incorrect';
+      feedback.textContent = 'Not quite. The correct answer is highlighted above.';
+    }
+
+    // Update progress
+    const progress = getProgress();
+    if (answeredCorrectly === TOTAL_QUESTIONS) {
+      progress[MODULE] = 'completed';
+    } else {
+      progress[MODULE] = 'in-progress';
+    }
+    saveProgress(progress);
+  }
+
+  function restore() {
+    const progress = getProgress();
+    // Mark module as in-progress when visited, if not already completed
+    if (!progress[MODULE] || progress[MODULE] === 'not-started') {
+      progress[MODULE] = 'in-progress';
+      saveProgress(progress);
+    }
+  }
+
+  // Init
+  restore();
+</script>
+
+</body>
+</html>

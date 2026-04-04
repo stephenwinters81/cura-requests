@@ -1,0 +1,48 @@
+# -------------------------------------------------------
+# Crontab — Requests v1.0
+# CURA Medical Specialists Imaging Request System
+#
+# Install:
+#   sudo crontab -u root deploy/crontab
+#
+# Or merge into existing crontab:
+#   sudo crontab -l | cat - deploy/crontab | sudo crontab -
+#
+# Verify:
+#   sudo crontab -l
+# -------------------------------------------------------
+
+# Environment
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=admin@curaspecialists.com.au
+
+# -------------------------------------------------------
+# Backup: daily at 2:00 AM AEST
+# Full PostgreSQL dump + PDF archive, GPG encrypted
+# -------------------------------------------------------
+0 2 * * * /var/www/requests/deploy/backup.sh >> /var/log/requests/backup.log 2>&1
+
+# -------------------------------------------------------
+# Data Retention: weekly on Sunday at 3:00 AM AEST
+# Archive records older than 90 days, purge from active DB
+# -------------------------------------------------------
+0 3 * * 0 /var/www/requests/deploy/retention.sh >> /var/log/requests/retention.log 2>&1
+
+# -------------------------------------------------------
+# Health Monitor: every minute
+# Checks app, disk, certificate, Redis, PostgreSQL
+# -------------------------------------------------------
+* * * * * /var/www/requests/deploy/health-monitor.sh >> /var/log/requests/health-monitor.log 2>&1
+
+# -------------------------------------------------------
+# Certificate Renewal Check: daily at 12:00 PM AEST
+# Certbot checks if renewal is needed (within 30 days of expiry)
+# -------------------------------------------------------
+0 12 * * * certbot renew --quiet --post-hook "systemctl reload nginx" >> /var/log/requests/certbot-renewal.log 2>&1
+
+# -------------------------------------------------------
+# AIDE File Integrity Check: daily at 4:00 AM AEST
+# Detects unauthorized modifications to application files
+# -------------------------------------------------------
+0 4 * * * /usr/bin/aide --check --config=/etc/aide/aide.conf >> /var/log/requests/aide-check.log 2>&1

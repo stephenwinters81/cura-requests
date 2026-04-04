@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 06: The API Layer &mdash; Requests Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0e14;
+    --surface: #161924;
+    --surface2: #1e2130;
+    --surface3: #262a3a;
+    --border: #2c3044;
+    --text: #e8e4df;
+    --text-soft: #b0aaa2;
+    --muted: #7a7670;
+    --amber: #f0a85c;
+    --amber-dim: rgba(240,168,92,0.12);
+    --amber-mid: rgba(240,168,92,0.25);
+    --green: #5ce08a;
+    --green-dim: rgba(92,224,138,0.12);
+    --red: #e05c6f;
+    --red-dim: rgba(224,92,111,0.12);
+    --blue: #5ca8f0;
+    --blue-dim: rgba(92,168,240,0.12);
+    --purple: #a07cf0;
+    --purple-dim: rgba(160,124,240,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Navigation */
+  .topnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .topnav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .topnav a:hover { color: var(--amber); }
+
+  /* Module Header */
+  .module-header {
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .module-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.9rem;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 100px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--amber);
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.03em;
+  }
+
+  .module-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 0.8rem;
+    background: linear-gradient(135deg, var(--text) 0%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .module-header p {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+  }
+
+  /* Content Sections */
+  .section {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-of-type {
+    border-bottom: none;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    color: var(--text);
+  }
+
+  .section p {
+    font-size: 1rem;
+    color: var(--text-soft);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+  }
+
+  .section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .section ul, .section ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .section li {
+    font-size: 1rem;
+    color: var(--text-soft);
+    line-height: 1.8;
+    margin-bottom: 0.4rem;
+  }
+
+  .section li strong {
+    color: var(--text);
+  }
+
+  /* Analogy Box */
+  .analogy {
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-mid);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+
+  .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    margin-bottom: 0.4rem;
+  }
+
+  .analogy p {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  /* Key Rule / Important Box */
+  .key-rule {
+    background: var(--red-dim);
+    border: 1px solid rgba(224,92,111,0.3);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+
+  .key-rule-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--red);
+    margin-bottom: 0.4rem;
+  }
+
+  .key-rule p {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  /* Info Box */
+  .info-box {
+    background: var(--blue-dim);
+    border: 1px solid rgba(92,168,240,0.3);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+  }
+
+  .info-box-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--blue);
+    margin-bottom: 0.4rem;
+  }
+
+  .info-box p {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+
+  /* Code / Inline Code */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--surface3);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    color: var(--amber);
+  }
+
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 1.2rem 0;
+    overflow-x: auto;
+  }
+
+  .code-block code {
+    background: none;
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    line-height: 1.7;
+    display: block;
+    white-space: pre;
+  }
+
+  .code-block .comment { color: var(--muted); }
+  .code-block .key { color: var(--blue); }
+  .code-block .string { color: var(--green); }
+  .code-block .method { color: var(--amber); }
+  .code-block .url { color: var(--purple); }
+
+  /* Tables */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1.2rem 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead th {
+    background: var(--surface2);
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody td {
+    padding: 0.7rem 1rem;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--surface2);
+  }
+
+  tbody td code {
+    font-size: 0.8rem;
+  }
+
+  /* MCQ Styles */
+  .mcq {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .mcq-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--purple);
+    margin-bottom: 0.6rem;
+  }
+
+  .mcq-question {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mcq-option {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+
+  .mcq-option:hover {
+    border-color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  .mcq-option.correct {
+    border-color: var(--green);
+    background: var(--green-dim);
+    color: var(--green);
+    cursor: default;
+  }
+
+  .mcq-option.incorrect {
+    border-color: var(--red);
+    background: var(--red-dim);
+    color: var(--red);
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  .mcq-option.dimmed {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .mcq-marker {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .mcq-option.correct .mcq-marker {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .mcq-option.incorrect .mcq-marker {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .mcq-feedback {
+    margin-top: 0.8rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .mcq-feedback.show { display: block; }
+
+  .mcq-feedback.correct {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(92,224,138,0.2);
+  }
+
+  .mcq-feedback.incorrect {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(224,92,111,0.2);
+  }
+
+  /* Completion Section */
+  .completion {
+    padding: 2.5rem 0;
+    text-align: center;
+  }
+
+  .completion-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .completion-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .completion-card p {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    margin-bottom: 1.2rem;
+  }
+
+  .completion-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.8rem;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .completion-btn:hover {
+    background: rgba(92,224,138,0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(92,224,138,0.15);
+  }
+
+  .completion-btn.completed {
+    background: var(--green-dim);
+    cursor: default;
+  }
+
+  /* Bottom Nav */
+  .bottomnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .bottomnav a {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .bottomnav a:hover { color: var(--amber); }
+
+  /* Footer */
+  footer {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+
+  footer p {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.8rem 1.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    color: var(--green);
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 0 1rem; }
+    .module-header h1 { font-size: 2rem; }
+    .section h2 { font-size: 1.3rem; }
+    .topnav { font-size: 0.75rem; }
+    table { font-size: 0.8rem; }
+    thead th, tbody td { padding: 0.5rem 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Top Navigation -->
+  <nav class="topnav">
+    <a href="index.html">&larr; Back to hub</a>
+    <a href="05-background-jobs.html">&larr; Prev: Background Jobs</a>
+    <a href="07-frontend.html">Next: The Frontend &rarr;</a>
+  </nav>
+
+  <!-- Module Header -->
+  <header class="module-header">
+    <div class="module-badge">Module 06 of 07</div>
+    <h1>The API Layer</h1>
+    <p>How Synaptum 8 talks to Requests without a human touching the web form. API keys, scopes, rate limits, and webhooks.</p>
+  </header>
+
+  <!-- Section 1: What is the API For? -->
+  <section class="section">
+    <div class="section-number">Section 1</div>
+    <h2>What is the API For?</h2>
+
+    <p>CURA's practice management system is called <strong>Synaptum 8</strong>. It is a FastAPI Python application that handles appointments, billing, clinical notes, and more.</p>
+
+    <p>Synaptum 8 needs to create imaging requests. But it is a machine. It does not have a human sitting in front of the web form, clicking buttons and typing patient details. It needs a way to talk to Requests <strong>programmatically</strong> &mdash; meaning through code, not through a browser.</p>
+
+    <p>That is what the API is for. API stands for <strong>Application Programming Interface</strong>. It is a set of rules that lets one piece of software talk to another.</p>
+
+    <p>The Requests web form is the "front door" for humans. The API is a <strong>back door for machines</strong>.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>A drive-through window. The main entrance (web form) is for humans. The drive-through (API) is for another system (Synaptum 8) to place orders without coming inside. Same kitchen, same food &mdash; just a different window.</p>
+    </div>
+
+    <p>The API lives at a specific URL, called the <strong>base URL</strong>:</p>
+
+    <div class="code-block"><code><span class="url">https://requests.curaspecialists.com.au/api/v1</span></code></div>
+
+    <p>Every API endpoint starts with this base URL. The <code>/v1</code> part means "version 1." If we ever need to make breaking changes, we can create <code>/v2</code> without disrupting Synaptum 8.</p>
+
+    <p>"REST" is the style of API we use. It means each URL represents a "resource" (like a request or a practice), and you interact with it using standard HTTP methods like <code>GET</code> (read) and <code>POST</code> (create).</p>
+  </section>
+
+  <!-- Section 2: Authentication — API Keys -->
+  <section class="section">
+    <div class="section-number">Section 2</div>
+    <h2>Authentication &mdash; API Keys</h2>
+
+    <p>When a human logs into Requests, they use a username and password (plus MFA). But Synaptum 8 is not a human. It does not have fingers or a phone for MFA codes.</p>
+
+    <p>Instead, it uses an <strong>API key</strong>. This is a long, random string that acts like a password for machines.</p>
+
+    <p>API keys in Requests have a specific format:</p>
+
+    <ul>
+      <li><strong>Production:</strong> <code>rq_live_</code> followed by random characters</li>
+      <li><strong>Development:</strong> <code>rq_test_</code> followed by random characters</li>
+    </ul>
+
+    <p>The prefix makes it obvious at a glance whether a key is a real production key or a test key. You would never accidentally use a test key in production (or vice versa).</p>
+
+    <p><strong>How does Synaptum 8 send the key?</strong> In an HTTP header with every request:</p>
+
+    <div class="code-block"><code><span class="key">Authorization</span>: <span class="string">Bearer rq_live_abc123def456...</span></code></div>
+
+    <p>The word "Bearer" is a standard convention that means "I am the bearer (holder) of this token &mdash; let me in."</p>
+
+    <p><strong>How are keys managed?</strong></p>
+
+    <ul>
+      <li>A key is shown <strong>once</strong> at creation. After that, only the prefix is visible (like <code>rq_live_abc1...</code>). There is no way to see the full key again.</li>
+      <li>In the database, the key is stored as a <strong>SHA-256 hash</strong>. This is a one-way scramble &mdash; just like a password. If someone breaks into the database, they still cannot recover the key.</li>
+      <li>Each key is linked to a <strong>user account</strong>. This creates an audit trail &mdash; we always know which user created which key and which requests were made with it.</li>
+      <li>Keys can be <strong>expired</strong> (set a date when they stop working), <strong>revoked</strong> (turned off immediately), and <strong>scoped</strong> (limited to certain actions).</li>
+    </ul>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>A hotel key card. You get it at check-in (creation). It only opens your room (scoped access). It expires at checkout (expiry). And the front desk can deactivate it anytime (revoke).</p>
+    </div>
+  </section>
+
+  <!-- MCQ 1 -->
+  <div class="mcq" data-mcq="1">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">How is the API key stored in the database?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>As plain text, so admins can look it up if needed</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>Encrypted with AES-256, so it can be decrypted later</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>As a SHA-256 hash (never plaintext)</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>Base64 encoded for storage efficiency</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. The key is hashed with SHA-256 &mdash; a one-way function. Even if the database is compromised, the original key cannot be recovered.</div>
+    <div class="mcq-feedback incorrect">Not quite. The key is stored as a SHA-256 hash. This is a one-way function &mdash; it cannot be reversed. This means even a database breach does not expose the key.</div>
+  </div>
+
+  <!-- Section 3: Scopes — What Can a Key Do? -->
+  <section class="section">
+    <div class="section-number">Section 3</div>
+    <h2>Scopes &mdash; What Can a Key Do?</h2>
+
+    <p>Not every API key should be allowed to do everything. <strong>Scopes</strong> control exactly what actions a key is permitted to perform.</p>
+
+    <p>Think of scopes as a checklist of permissions. When you create an API key, you tick which permissions it gets.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Scope</th>
+            <th>Allows</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>requests:write</code></td>
+            <td>Create imaging requests, re-send failed deliveries</td>
+          </tr>
+          <tr>
+            <td><code>requests:read</code></td>
+            <td>View request status and delivery details</td>
+          </tr>
+          <tr>
+            <td><code>practices:read</code></td>
+            <td>List and search radiology practices</td>
+          </tr>
+          <tr>
+            <td><code>providers:read</code></td>
+            <td>List providers and exam types</td>
+          </tr>
+          <tr>
+            <td><code>practices:write</code></td>
+            <td>Create/update practices (optional, rare)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>A key with only <code>requests:read</code> can check the status of a request. But it <strong>cannot</strong> create a new one &mdash; it would need <code>requests:write</code> for that.</p>
+
+    <p>This follows the <strong>principle of least privilege</strong>: give every key only the permissions it actually needs. If Synaptum 8 only needs to create requests and check their status, it gets <code>requests:write</code> and <code>requests:read</code> &mdash; nothing more.</p>
+  </section>
+
+  <!-- MCQ 2 -->
+  <div class="mcq" data-mcq="2">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">Can an API key with only <code>requests:read</code> scope create a new imaging request?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>Yes &mdash; any valid API key can create requests</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>No &mdash; it needs <code>requests:write</code> scope</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>Yes, but only in test mode</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>No &mdash; it needs admin privileges</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. Creating a request requires the <code>requests:write</code> scope. A read-only key can only view existing requests, not create new ones.</div>
+    <div class="mcq-feedback incorrect">Not quite. A key with only <code>requests:read</code> cannot create requests. It would need the <code>requests:write</code> scope for that.</div>
+  </div>
+
+  <!-- Section 4: The Endpoints -->
+  <section class="section">
+    <div class="section-number">Section 4</div>
+    <h2>The Endpoints</h2>
+
+    <p>An <strong>endpoint</strong> is a specific URL that does a specific thing. Each one has:</p>
+    <ul>
+      <li>A <strong>method</strong> (GET = read, POST = create)</li>
+      <li>A <strong>path</strong> (the URL after the base URL)</li>
+      <li>A <strong>required scope</strong> (what permission the key needs)</li>
+    </ul>
+
+    <p>Here is every endpoint in the Requests API:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Scope</th>
+            <th>What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/requests</code></td>
+            <td><code>requests:write</code></td>
+            <td>Create imaging request (validates, parses PHI, generates PDF, queues delivery)</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/requests</code></td>
+            <td><code>requests:read</code></td>
+            <td>List requests (paginated, filterable)</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/requests/:id</code></td>
+            <td><code>requests:read</code></td>
+            <td>Get request status + delivery job statuses</td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/requests/:id/resend</code></td>
+            <td><code>requests:write</code></td>
+            <td>Re-queue failed delivery jobs</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/requests/:id/pdf</code></td>
+            <td><code>requests:read</code></td>
+            <td>Download the generated PDF</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/practices</code></td>
+            <td><code>practices:read</code></td>
+            <td>List radiology practices</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/providers</code></td>
+            <td><code>providers:read</code></td>
+            <td>List providers</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/exam-types</code></td>
+            <td><code>providers:read</code></td>
+            <td>List exam types</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The <code>:id</code> in paths like <code>/requests/:id</code> is a placeholder. In a real request, you would replace it with the actual request ID, like <code>/requests/abc-123-def</code>.</p>
+
+    <p><strong>Response format.</strong> Every response from the API follows the same shape:</p>
+
+    <div class="code-block"><code><span class="comment">// Success</span>
+{ <span class="key">"ok"</span>: <span class="string">true</span>, <span class="key">"data"</span>: { ... } }
+
+<span class="comment">// Error</span>
+{ <span class="key">"ok"</span>: <span class="string">false</span>, <span class="key">"error"</span>: { <span class="key">"code"</span>: <span class="string">"..."</span>, <span class="key">"message"</span>: <span class="string">"..."</span> } }</code></div>
+
+    <p>This makes it easy for Synaptum 8 to check: if <code>ok</code> is <code>true</code>, the request worked. If <code>false</code>, something went wrong, and the error tells you what.</p>
+
+    <div class="key-rule">
+      <div class="key-rule-label">Key Rule</div>
+      <p>PHI is accepted via the API (in the <code>rawPhiInput</code> field) but <strong>never returned</strong> in API responses. You can send patient data in, but you can only get back metadata and delivery status. This is a deliberate security design &mdash; the API is not a way to extract patient data.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 3 -->
+  <div class="mcq" data-mcq="3">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">If you call <code>GET /api/v1/requests/:id</code>, will the response include the patient's name?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>Yes &mdash; the response includes all submitted data</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>Yes, but only if the key has admin scope</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>No &mdash; PHI is never returned in API responses</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>No &mdash; GET requests cannot return any data</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. PHI (patient health information) is a one-way street in the API. It goes in, but it never comes back out. API responses only contain metadata and delivery status.</div>
+    <div class="mcq-feedback incorrect">Not quite. PHI is never returned in API responses, regardless of the key's scopes. The API only returns metadata (like request ID, status, timestamps) and delivery status.</div>
+  </div>
+
+  <!-- Section 5: Rate Limiting -->
+  <section class="section">
+    <div class="section-number">Section 5</div>
+    <h2>Rate Limiting</h2>
+
+    <p>Rate limiting prevents any single API key from overwhelming the system with too many requests at once. There are two limits:</p>
+
+    <ul>
+      <li><strong>General limit:</strong> 120 requests per minute per API key (for all endpoints)</li>
+      <li><strong>Create limit:</strong> 30 requests per minute for creating new imaging requests (the <code>POST /requests</code> endpoint)</li>
+    </ul>
+
+    <p>The create limit is lower because creating a request does a lot of work: validation, PHI parsing, PDF generation, and queuing delivery jobs. It is much heavier than a simple read.</p>
+
+    <p>Every API response includes three special headers that tell the caller where they stand:</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Header</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>X-RateLimit-Limit</code></td>
+            <td>Maximum requests allowed per window</td>
+          </tr>
+          <tr>
+            <td><code>X-RateLimit-Remaining</code></td>
+            <td>How many requests are left in the current window</td>
+          </tr>
+          <tr>
+            <td><code>X-RateLimit-Reset</code></td>
+            <td>When the window resets (Unix timestamp)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>If you exceed the limit, the API responds with HTTP status code <strong>429 (Too Many Requests)</strong>. Synaptum 8 should wait and try again after the reset time.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>A speed limit. You can drive (make requests) as fast as you want up to the limit. Go over, and you get a ticket (HTTP 429 error) and have to wait.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 4 -->
+  <div class="mcq" data-mcq="4">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What HTTP status code do you get when you exceed the rate limit?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>401 Unauthorized</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>403 Forbidden</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>500 Internal Server Error</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>429 Too Many Requests</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. HTTP 429 means "Too Many Requests." The response headers tell you when you can try again.</div>
+    <div class="mcq-feedback incorrect">Not quite. Rate limit violations return HTTP 429 (Too Many Requests). 401 means bad credentials, 403 means insufficient permissions, 500 means a server error.</div>
+  </div>
+
+  <!-- Section 6: Webhooks — Pushing Status Back -->
+  <section class="section">
+    <div class="section-number">Section 6</div>
+    <h2>Webhooks &mdash; Pushing Status Back</h2>
+
+    <p>So far, the communication is one-way: Synaptum 8 sends requests to the API. But what happens after that? Synaptum 8 needs to know when a fax has been delivered, or when an email bounced.</p>
+
+    <p>There are two ways to find out:</p>
+
+    <ol>
+      <li><strong>Polling:</strong> Synaptum 8 asks "is it done yet?" every few minutes. This wastes resources and adds delay.</li>
+      <li><strong>Webhooks:</strong> Requests sends a notification to Synaptum 8 the moment something changes. This is instant and efficient.</li>
+    </ol>
+
+    <p>We use <strong>webhooks</strong>. Here is how they work:</p>
+
+    <ul>
+      <li>When you create an API key, you can configure a <strong>webhook URL</strong> &mdash; a URL on Synaptum 8's side that accepts incoming notifications.</li>
+      <li>When a delivery status changes, Requests sends an HTTP POST to that URL with the event details.</li>
+      <li>The three events that trigger webhooks are:</li>
+    </ul>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>When it fires</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>delivery.sent</code></td>
+            <td>Email or fax was successfully sent to the provider</td>
+          </tr>
+          <tr>
+            <td><code>delivery.delivered</code></td>
+            <td>Delivery confirmed (e.g., fax received by the radiology practice)</td>
+          </tr>
+          <tr>
+            <td><code>delivery.failed</code></td>
+            <td>Delivery failed after all retries were exhausted</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>How does Synaptum 8 know the webhook really came from Requests?</strong> Every webhook is signed with <strong>HMAC-SHA256</strong>. This is a cryptographic signature that proves the notification was generated by Requests and has not been tampered with. Synaptum 8 verifies this signature before trusting the payload.</p>
+
+    <div class="analogy">
+      <div class="analogy-label">Analogy</div>
+      <p>A tracking notification. Instead of Synaptum 8 checking "is my package delivered yet?" every 5 minutes (polling), Requests sends a text message (webhook) the moment something changes. The text comes from a verified number (HMAC signature) so you know it is real.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 5 -->
+  <div class="mcq" data-mcq="5">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">How does Synaptum 8 verify that a webhook notification really came from Requests?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>It checks the sender's IP address</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>HMAC-SHA256 signature verification</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>It asks the API to confirm the webhook was sent</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>The webhook includes the API key in plain text</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. Each webhook carries an HMAC-SHA256 signature. Synaptum 8 uses a shared secret to verify the signature, confirming the notification is authentic and untampered.</div>
+    <div class="mcq-feedback incorrect">Not quite. Webhooks are verified using HMAC-SHA256 signature verification. This is a cryptographic method that proves authenticity without exposing any secrets.</div>
+  </div>
+
+  <!-- Section 7: Duplicate Detection -->
+  <section class="section">
+    <div class="section-number">Section 7</div>
+    <h2>Duplicate Detection</h2>
+
+    <p>Mistakes happen. A network glitch might cause Synaptum 8 to send the same request twice. A bug could trigger a duplicate submission. Without protection, the same patient could get the same imaging request sent to the same radiology practice twice.</p>
+
+    <p>To prevent this, the API has <strong>automatic duplicate detection</strong>.</p>
+
+    <p>If Synaptum 8 sends a request with the <strong>same patient and same exam type</strong> within a <strong>24-hour window</strong>, the API does not create a duplicate. Instead, it responds with:</p>
+
+    <div class="code-block"><code><span class="comment">// HTTP 409 Conflict</span>
+{
+  <span class="key">"ok"</span>: <span class="string">false</span>,
+  <span class="key">"error"</span>: {
+    <span class="key">"code"</span>: <span class="string">"DUPLICATE_REQUEST"</span>,
+    <span class="key">"message"</span>: <span class="string">"A matching request was created within the last 24 hours"</span>
+  }
+}</code></div>
+
+    <p>HTTP 409 means "Conflict" &mdash; the new request conflicts with an existing one.</p>
+
+    <p>But sometimes a duplicate is intentional. Maybe the first request had wrong information and needs to be re-done. In that case, Synaptum 8 can include <code>"force": true</code> in the request body to override the duplicate check.</p>
+
+    <div class="info-box">
+      <div class="info-box-label">How it works</div>
+      <p>The API checks for matching patient details and exam type within the last 24 hours. If a match is found, it returns 409 Conflict. Include <code>"force": true</code> in the request body to override this check and create the request anyway.</p>
+    </div>
+  </section>
+
+  <!-- MCQ 6 -->
+  <div class="mcq" data-mcq="6">
+    <div class="mcq-label">Check your understanding</div>
+    <div class="mcq-question">What happens if Synaptum 8 accidentally sends the same request twice within 24 hours?</div>
+    <div class="mcq-options">
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">A</div>
+        <span>Both requests are created and delivered</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">B</div>
+        <span>The second request silently overwrites the first</span>
+      </div>
+      <div class="mcq-option" data-correct="true" onclick="checkAnswer(this)">
+        <div class="mcq-marker">C</div>
+        <span>The API returns 409 Conflict (duplicate detected)</span>
+      </div>
+      <div class="mcq-option" data-correct="false" onclick="checkAnswer(this)">
+        <div class="mcq-marker">D</div>
+        <span>The API key is automatically revoked</span>
+      </div>
+    </div>
+    <div class="mcq-feedback correct">Correct. The API detects the duplicate and returns HTTP 409 Conflict. The second request is not created. Synaptum 8 can override this with <code>"force": true</code> if the duplicate is intentional.</div>
+    <div class="mcq-feedback incorrect">Not quite. The API returns 409 Conflict when it detects a duplicate within 24 hours. This prevents accidental double-sends without revoking the key or creating duplicates.</div>
+  </div>
+
+  <!-- Completion -->
+  <section class="completion">
+    <div class="completion-card">
+      <h3>Module Complete?</h3>
+      <p>If you have read all seven sections and answered the questions, mark this module as done.</p>
+      <button class="completion-btn" id="completeBtn" onclick="markComplete()">Mark Module 06 Complete</button>
+    </div>
+  </section>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottomnav">
+    <a href="05-background-jobs.html">&larr; Background Jobs &amp; Delivery</a>
+    <a href="index.html">Hub</a>
+    <a href="07-frontend.html">The Frontend &rarr;</a>
+  </nav>
+
+  <!-- Footer -->
+  <footer>
+    <p>Requests Learning Pack &bull; Module 06 of 07 &bull; 3 Apr 2026</p>
+  </footer>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'requests_learning';
+  const MODULE = '06';
+
+  // --- Progress ---
+  function getProgress() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : {};
+    } catch { return {}; }
+  }
+
+  function saveProgress(progress) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Mark module as in-progress on load (if not already completed)
+  (function() {
+    const progress = getProgress();
+    if (progress[MODULE] !== 'completed') {
+      progress[MODULE] = 'in-progress';
+      saveProgress(progress);
+    }
+    updateCompletionButton();
+  })();
+
+  function markComplete() {
+    const progress = getProgress();
+    progress[MODULE] = 'completed';
+    saveProgress(progress);
+    updateCompletionButton();
+    showToast('Module 06 marked complete!');
+  }
+
+  function updateCompletionButton() {
+    const progress = getProgress();
+    const btn = document.getElementById('completeBtn');
+    if (progress[MODULE] === 'completed') {
+      btn.textContent = 'Completed';
+      btn.classList.add('completed');
+    }
+  }
+
+  // --- MCQ Logic ---
+  function checkAnswer(option) {
+    const mcq = option.closest('.mcq');
+    const options = mcq.querySelectorAll('.mcq-option');
+    const feedbackCorrect = mcq.querySelector('.mcq-feedback.correct');
+    const feedbackIncorrect = mcq.querySelector('.mcq-feedback.incorrect');
+
+    // If already answered, do nothing
+    if (mcq.dataset.answered === 'true') return;
+    mcq.dataset.answered = 'true';
+
+    const isCorrect = option.dataset.correct === 'true';
+
+    options.forEach(opt => {
+      if (opt.dataset.correct === 'true') {
+        opt.classList.add('correct');
+        opt.querySelector('.mcq-marker').innerHTML = '&#10003;';
+      } else if (opt === option && !isCorrect) {
+        opt.classList.add('incorrect');
+        opt.querySelector('.mcq-marker').innerHTML = '&#10007;';
+      } else {
+        opt.classList.add('dimmed');
+      }
+    });
+
+    if (isCorrect) {
+      feedbackCorrect.classList.add('show');
+    } else {
+      feedbackIncorrect.classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>
