@@ -23,7 +23,10 @@ export type AuditAction =
   | "provider_updated"
   | "provider_deleted"
   | "delivery_completed"
-  | "delivery_failed";
+  | "delivery_failed"
+  | "password_changed"
+  | "device_trusted"
+  | "device_revoked";
 
 export type ResourceType =
   | "imaging_request"
@@ -31,7 +34,8 @@ export type ResourceType =
   | "user"
   | "api_key"
   | "session"
-  | "provider";
+  | "provider"
+  | "trusted_device";
 
 export async function logAudit(
   userId: string | null,

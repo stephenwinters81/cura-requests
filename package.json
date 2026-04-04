@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "worker": "tsx worker/delivery-worker.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -61,6 +62,7 @@
     "prisma": "^6.19.3",
     "puppeteer": "^24.40.0",
     "tailwindcss": "^4.2.2",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.2"
   }
 }

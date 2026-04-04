@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { decryptField } from "@/lib/encryption";
 import { logAudit } from "@/lib/audit";
 import { loginSchema, mfaSchema } from "@/lib/validation";
+import { verifyTrustedDeviceFromToken } from "@/lib/trusted-device";
 
 // --- Type Augmentation ---
 
@@ -75,16 +76,46 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
         mfaCode: { label: "MFA Code", type: "text" },
+        deviceTrustToken: { label: "Device Trust Token", type: "text" },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
         const mfaCode = credentials?.mfaCode as string | undefined;
+        const deviceTrustToken = credentials?.deviceTrustToken as string | undefined;
 
         if (!email) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;
+
+        // --- Trusted device flow (skip MFA) ---
+        if (deviceTrustToken && !mfaCode) {
+          if (!user.mfaEnabled) return null;
+
+          const isTrusted = await verifyTrustedDeviceFromToken(
+            user.id,
+            deviceTrustToken
+          );
+          if (!isTrusted) return null;
+
+          await logAudit(
+            user.id,
+            "login",
+            "session",
+            undefined,
+            "MFA skipped — trusted device"
+          );
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            mfaVerified: true,
+            mfaEnabled: user.mfaEnabled,
+          };
+        }
 
         // --- MFA verification flow ---
         if (mfaCode) {

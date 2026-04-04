@@ -21,12 +21,26 @@ model User {
   lockedAt          DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+  trustedDevices    TrustedDevice[]
   sessions          Session[]
   requests          ImagingRequest[]
   auditLogs         AuditLog[]
   apiKeys           ApiKey[]
   defaultProvider   Provider?        @relation("UserDefaultProvider", fields: [defaultProviderId], references: [id])
   providers         Provider[]       @relation("UserProviders")
+}
+
+model TrustedDevice {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  label     String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Session {
