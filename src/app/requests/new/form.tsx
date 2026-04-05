@@ -22,7 +22,6 @@ import { ProviderSelect } from "@/components/forms/ProviderSelect";
 import { PhiTextarea } from "@/components/forms/PhiTextarea";
 import { imagingRequestSchema } from "@/lib/validation";
 import { submitImagingRequest, checkDuplicate } from "./actions";
-import type { ManualPractice } from "@/lib/types";
 
 // --- Types ---
 
@@ -59,8 +58,6 @@ interface FormProps {
 
 interface FormState {
   practiceId: string;
-  manualMode: boolean;
-  manualPractice: ManualPractice;
   rawPhiInput: string;
   examType: string;
   examOther: string;
@@ -77,8 +74,6 @@ const DRAFT_KEY = "imaging-request-draft";
 
 const initialState: FormState = {
   practiceId: "",
-  manualMode: false,
-  manualPractice: { name: "", address: "", phone: "", fax: "", email: "" },
   rawPhiInput: "",
   examType: "",
   examOther: "",
@@ -146,6 +141,7 @@ export function ImagingRequestForm({
 }: FormProps) {
   const router = useRouter();
   const [form, setForm] = React.useState<FormState>(initialState);
+  const [localPractices, setLocalPractices] = React.useState(practices);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [submitting, setSubmitting] = React.useState(false);
   const [draftRestored, setDraftRestored] = React.useState(false);
@@ -211,8 +207,7 @@ export function ImagingRequestForm({
 
   function buildSubmitData() {
     return {
-      practiceId: form.manualMode ? undefined : form.practiceId || undefined,
-      manualPractice: form.manualMode ? form.manualPractice : undefined,
+      practiceId: form.practiceId || undefined,
       rawPhiInput: form.rawPhiInput,
       examType: form.examType,
       examOther: form.examOther || undefined,
@@ -377,16 +372,15 @@ export function ImagingRequestForm({
           </CardHeader>
           <CardContent>
             <PracticeCombobox
-              practices={practices}
+              practices={localPractices}
               value={form.practiceId}
               onSelect={(id) => {
                 updateField("practiceId", id);
                 updateField("reportByRadiologistId", "");
               }}
-              manualMode={form.manualMode}
-              onManualModeChange={(manual) => updateField("manualMode", manual)}
-              manualPractice={form.manualPractice}
-              onManualPracticeChange={(mp) => updateField("manualPractice", mp)}
+              onPracticeCreated={(practice) => {
+                setLocalPractices((prev) => [...prev, practice]);
+              }}
               error={errors.practiceId}
               autoFocus
             />
@@ -648,7 +642,6 @@ export function ImagingRequestForm({
                   onChange={(e) => updateField("patientEmail", e.target.value)}
                   placeholder="patient@example.com"
                   className={errors.patientEmail ? "border-destructive" : ""}
-                  autoFocus
                 />
                 {errors.patientEmail && (
                   <p className="text-xs text-destructive">{errors.patientEmail}</p>

@@ -105,6 +105,7 @@ const publicPatterns = [
   /^\/api\/health$/,
   /^\/api\/fax\/webhook$/,
   /^\/api\/v1(\/.*)?$/,
+  /^\/onboarding$/,
 ];
 
 function isPublicRoute(pathname: string): boolean {
@@ -171,7 +172,7 @@ export default auth((request) => {
   if (isPublicRoute(pathname)) {
     // But if user is on /login and fully authenticated, redirect to dashboard
     if (pathname === "/login" && request.auth?.user?.mfaVerified) {
-      return applySecurityHeaders(NextResponse.redirect(new URL("/dashboard", request.url)));
+      return applySecurityHeaders(NextResponse.redirect(new URL("/requests/new", request.url)));
     }
     return applySecurityHeaders(NextResponse.next());
   }

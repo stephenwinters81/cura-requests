@@ -25,7 +25,7 @@ function getKeyStatus(key: { revokedAt: Date | null; expiresAt: Date | null }): 
 
 export default async function ApiKeysPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/dashboard");
+  if (!session?.user || session.user.role !== "admin") redirect("/requests/new");
 
   const apiKeys = await prisma.apiKey.findMany({
     orderBy: { createdAt: "desc" },

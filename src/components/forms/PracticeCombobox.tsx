@@ -4,9 +4,8 @@ import * as React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import type { ManualPractice } from "@/lib/types";
+import { AddPracticeDialog } from "@/components/practices/AddPracticeDialog";
+import type { PracticeRecord } from "@/lib/practices/types";
 
 interface Practice {
   id: string;
@@ -22,10 +21,7 @@ interface PracticeComboboxProps {
   practices: Practice[];
   value: string;
   onSelect: (practiceId: string, practice: Practice | null) => void;
-  manualMode: boolean;
-  onManualModeChange: (manual: boolean) => void;
-  manualPractice: ManualPractice;
-  onManualPracticeChange: (practice: ManualPractice) => void;
+  onPracticeCreated?: (practice: PracticeRecord) => void;
   error?: string;
   autoFocus?: boolean;
 }
@@ -34,16 +30,14 @@ export function PracticeCombobox({
   practices,
   value,
   onSelect,
-  manualMode,
-  onManualModeChange,
-  manualPractice,
-  onManualPracticeChange,
+  onPracticeCreated,
   error,
   autoFocus = false,
 }: PracticeComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [highlightIndex, setHighlightIndex] = React.useState(0);
+  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const listRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -98,7 +92,6 @@ export function PracticeCombobox({
     onSelect(practice.id, practice);
     setSearch("");
     setOpen(false);
-    if (manualMode) onManualModeChange(false);
   }
 
   // Scroll highlighted item into view
@@ -108,85 +101,17 @@ export function PracticeCombobox({
     items[highlightIndex]?.scrollIntoView({ block: "nearest" });
   }, [highlightIndex]);
 
-  if (manualMode) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-muted-foreground">
-            Manual practice entry
-          </span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onManualModeChange(false)}
-          >
-            Back to search
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Label htmlFor="manual-name">Practice name *</Label>
-            <Input
-              id="manual-name"
-              value={manualPractice.name}
-              onChange={(e) =>
-                onManualPracticeChange({ ...manualPractice, name: e.target.value })
-              }
-              placeholder="Practice name"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="manual-address">Address</Label>
-            <Input
-              id="manual-address"
-              value={manualPractice.address ?? ""}
-              onChange={(e) =>
-                onManualPracticeChange({ ...manualPractice, address: e.target.value })
-              }
-              placeholder="Full address"
-            />
-          </div>
-          <div>
-            <Label htmlFor="manual-phone">Phone</Label>
-            <Input
-              id="manual-phone"
-              value={manualPractice.phone ?? ""}
-              onChange={(e) =>
-                onManualPracticeChange({ ...manualPractice, phone: e.target.value })
-              }
-              placeholder="Phone number"
-            />
-          </div>
-          <div>
-            <Label htmlFor="manual-fax">Fax</Label>
-            <Input
-              id="manual-fax"
-              value={manualPractice.fax ?? ""}
-              onChange={(e) =>
-                onManualPracticeChange({ ...manualPractice, fax: e.target.value })
-              }
-              placeholder="Fax number"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="manual-email">Email</Label>
-            <Input
-              id="manual-email"
-              type="email"
-              value={manualPractice.email ?? ""}
-              onChange={(e) =>
-                onManualPracticeChange({ ...manualPractice, email: e.target.value })
-              }
-              placeholder="Email address"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <>
+      <AddPracticeDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onComplete={(practice) => {
+          onSelect(practice.id, practice);
+          onPracticeCreated?.(practice);
+          setAddDialogOpen(false);
+        }}
+      />
     <div className="space-y-2">
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
@@ -344,12 +269,11 @@ export function PracticeCombobox({
                 type="button"
                 className="w-full rounded-sm px-3 py-1.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 onClick={() => {
-                  onManualModeChange(true);
-                  onSelect("", null);
                   setOpen(false);
+                  setAddDialogOpen(true);
                 }}
               >
-                Practice not listed? Enter manually...
+                Practice not listed? Add new...
               </button>
             </div>
           </Popover.Content>
@@ -368,5 +292,6 @@ export function PracticeCombobox({
 
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
+    </>
   );
 }

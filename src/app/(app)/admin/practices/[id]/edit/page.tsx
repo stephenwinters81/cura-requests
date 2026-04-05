@@ -16,7 +16,7 @@ interface PageProps {
 
 export default async function EditPracticePage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/dashboard");
+  if (!session?.user || session.user.role !== "admin") redirect("/requests/new");
 
   const { id } = await params;
   const practice = await prisma.radiologyPractice.findUnique({

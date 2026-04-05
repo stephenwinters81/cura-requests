@@ -9,7 +9,7 @@ export default async function MfaPage() {
 
   // If already fully verified, go to dashboard
   if (session?.user?.mfaVerified) {
-    redirect("/dashboard");
+    redirect("/requests/new");
   }
 
   // If no session at all, go to login
@@ -29,7 +29,7 @@ export default async function MfaPage() {
         redirect: false,
       });
       // If signIn succeeds without throwing, redirect
-      redirect("/dashboard");
+      redirect("/requests/new");
     } catch (error: unknown) {
       // Auth.js v5 throws NEXT_REDIRECT on success
       if (

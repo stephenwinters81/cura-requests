@@ -36,6 +36,11 @@ export function normalizeFaxNumber(raw: string): string {
     return "+61" + cleaned.slice(1);
   }
 
+  // 8-digit local number missing area code — assume 02 (NSW/ACT)
+  if (/^\d{8}$/.test(cleaned)) {
+    return "+612" + cleaned;
+  }
+
   // Assume Australian without leading 0
   return "+61" + cleaned;
 }

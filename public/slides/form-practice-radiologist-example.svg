@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="420" viewBox="0 0 560 420">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
+      text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    </style>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow-lg" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="560" height="420" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Section header -->
+  <text x="28" y="36" font-size="11" font-weight="600" fill="#0d9488" letter-spacing="1.5" text-transform="uppercase">WHERE TO SEND</text>
+  <text x="28" y="58" font-size="18" font-weight="600" fill="#1a365d">Select Radiology Practice</text>
+
+  <!-- Practice combobox (selected state) -->
+  <text x="28" y="88" font-size="12" font-weight="500" fill="#374151">Radiology practice</text>
+  <rect x="28" y="96" width="504" height="36" rx="6" fill="#ffffff" stroke="#0d9488" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="40" y="119" font-size="13" font-weight="500" fill="#1a365d">I-MED Radiology Drummoyne</text>
+  <!-- Chevron -->
+  <path d="M516 112 l5 5 l5 -5" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Practice details box -->
+  <rect x="28" y="140" width="504" height="52" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+  <text x="40" y="158" font-size="11" fill="#64748b">123 Victoria Road, Drummoyne NSW 2047</text>
+  <text x="40" y="174" font-size="11" fill="#64748b">Fax: 02 9181 1234</text>
+  <text x="200" y="174" font-size="11" fill="#64748b">Email: drummoyne@i-med.com.au</text>
+
+  <!-- Radiologist dropdown section - highlighted with subtle animation feel -->
+  <rect x="20" y="200" width="520" height="195" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1" stroke-dasharray="0"/>
+
+  <!-- Animated arrow indicator -->
+  <polygon points="24,218 24,230 32,224" fill="#0d9488" opacity="0.6"/>
+
+  <text x="42" y="228" font-size="12" font-weight="500" fill="#374151">Preferred reporting radiologist</text>
+  <text x="240" y="228" font-size="10" fill="#0d9488" font-weight="500">(appears when practice has linked radiologists)</text>
+
+  <!-- Dropdown (open state showing options) -->
+  <rect x="42" y="236" width="486" height="36" rx="6" fill="#ffffff" stroke="#d1d5db" stroke-width="1" filter="url(#shadow)"/>
+  <text x="54" y="259" font-size="13" fill="#94a3b8">No preference</text>
+  <path d="M510 251 l5 5 l5 -5" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Open dropdown options -->
+  <rect x="42" y="274" width="486" height="116" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow-lg)"/>
+
+  <!-- Option: No preference -->
+  <rect x="43" y="275" width="484" height="28" rx="0" fill="#ffffff"/>
+  <text x="56" y="294" font-size="12" fill="#64748b">No preference</text>
+
+  <!-- Option: Highlighted -->
+  <rect x="43" y="303" width="484" height="28" fill="#f0fdfa"/>
+  <text x="56" y="322" font-size="12" font-weight="500" fill="#0d9488">Dr Lynette Masters</text>
+
+  <!-- Option -->
+  <rect x="43" y="331" width="484" height="28" fill="#ffffff"/>
+  <text x="56" y="350" font-size="12" fill="#1e293b">Dr Greg Markson</text>
+
+  <!-- Option -->
+  <rect x="43" y="359" width="484" height="28" rx="0" fill="#ffffff"/>
+  <text x="56" y="378" font-size="12" fill="#1e293b">Dr Stephen Morris</text>
+
+  <!-- Scroll indicator dots -->
+  <text x="270" y="393" font-size="10" fill="#94a3b8" text-anchor="middle">+ 5 more</text>
+</svg>

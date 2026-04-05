@@ -20,7 +20,7 @@ export const metadata = {
 
 export default async function RadiologistsPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/dashboard");
+  if (!session?.user || session.user.role !== "admin") redirect("/requests/new");
 
   const radiologists = await prisma.radiologist.findMany({
     orderBy: { name: "asc" },

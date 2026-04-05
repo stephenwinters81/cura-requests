@@ -29,7 +29,24 @@
       "Bash(gws --help)",
       "Bash(gws auth:*)",
       "WebFetch(domain:docs.notifyre.com)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(gh auth:*)",
+      "Bash(apt-get install:*)",
+      "Bash(DEBIAN_FRONTEND=noninteractive apt-get install -y gh)",
+      "Bash(gh repo:*)",
+      "Bash(git remote:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "WebFetch(domain:support.notifyre.com)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git config:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vitest:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(npm show:*)"
     ]
   }
 }

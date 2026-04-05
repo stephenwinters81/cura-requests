@@ -45,7 +45,7 @@ export function MfaForm() {
           return;
         }
 
-        router.push("/dashboard");
+        router.push("/requests/new");
         router.refresh();
       } catch {
         setError("An unexpected error occurred. Please try again.");

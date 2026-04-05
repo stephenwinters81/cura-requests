@@ -54,7 +54,7 @@ export default function LoginPage() {
       }
 
       // Success - middleware will redirect to MFA if needed
-      router.push("/dashboard");
+      router.push("/requests/new");
       router.refresh();
     } catch {
       setError("An unexpected error occurred. Please try again.");

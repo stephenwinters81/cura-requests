@@ -21,7 +21,7 @@ interface PageProps {
 
 export default async function PracticesPage({ searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/dashboard");
+  if (!session?.user || session.user.role !== "admin") redirect("/requests/new");
 
   const params = await searchParams;
   const search = params.search?.trim() || "";

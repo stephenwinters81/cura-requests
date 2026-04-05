@@ -13,7 +13,7 @@ interface PageProps {
 
 export default async function ApiKeyDetailPage({ params }: PageProps) {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") redirect("/dashboard");
+  if (!session?.user || session.user.role !== "admin") redirect("/requests/new");
 
   const { id } = await params;
   const apiKey = await prisma.apiKey.findUnique({

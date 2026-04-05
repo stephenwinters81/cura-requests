@@ -60,7 +60,7 @@ describe("trusted-device", () => {
       expect(createArg.data.expiresAt).toBeInstanceOf(Date);
       // Should expire ~30 days from now
       const diffDays =
-        (createArg.data.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+        (new Date(createArg.data.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
       expect(diffDays).toBeGreaterThan(29);
       expect(diffDays).toBeLessThan(31);
     });
