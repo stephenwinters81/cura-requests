@@ -21,6 +21,7 @@ export default function NewUserPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -34,6 +35,7 @@ export default function NewUserPage() {
         setError(result.error);
       } else if (result.tempPassword) {
         setTempPassword(result.tempPassword);
+        setEmailSent(result.emailSent ?? false);
         setShowDialog(true);
       }
     } finally {
@@ -122,7 +124,10 @@ export default function NewUserPage() {
           <DialogHeader>
             <DialogTitle>User Created Successfully</DialogTitle>
             <DialogDescription>
-              Share this temporary password with the user. It will only be shown once.
+              {emailSent
+                ? "A welcome email with login credentials has been sent to the user. The password is also shown below for your records."
+                : "Share this temporary password with the user. It will only be shown once."
+              }{" "}
               The user must set up MFA on their first login.
             </DialogDescription>
           </DialogHeader>

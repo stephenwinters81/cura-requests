@@ -14,6 +14,8 @@ import {
 import { sendProviderEmail, sendFilingEmail, sendPatientEmail } from "@/lib/email";
 import { sendFax } from "@/lib/fax";
 import { dispatchWebhook } from "@/lib/webhook";
+import { alertDeliveryFailure } from "@/lib/alerts";
+import { startHealthMonitor } from "./health-monitor";
 import type { ParsedPhi } from "@/lib/types";
 
 // --- Load and decrypt PDF from disk ---
@@ -267,6 +269,7 @@ worker.on("failed", async (job, error) => {
           data: {
             requestId,
             type: "provider_fax",
+            recipient: request.practice.fax,
             status: "queued",
             attempts: 0,
           },
@@ -283,6 +286,23 @@ worker.on("failed", async (job, error) => {
     }
 
     await recalculateRequestStatus(requestId);
+
+    // Audit log the permanent failure
+    await logAudit(
+      null,
+      "delivery_failed",
+      "imaging_request",
+      requestId,
+      `Delivery ${type} ${deliveryJobId} failed after ${job.attemptsMade} attempts: ${error.message}`
+    );
+
+    // Alert admin of permanent failure
+    await alertDeliveryFailure({
+      deliveryJobId,
+      requestId,
+      type,
+      error: error.message,
+    });
 
     // Dispatch delivery.status_changed webhook for failed job
     const updatedRequest = await prisma.imagingRequest.findUnique({
@@ -329,5 +349,8 @@ async function shutdown() {
 
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
+
+// --- Start health monitoring ---
+startHealthMonitor();
 
 console.log("Delivery worker started — listening for jobs on queue 'delivery'");

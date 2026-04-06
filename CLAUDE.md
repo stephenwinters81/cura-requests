@@ -65,10 +65,25 @@ git push             # Push to GitHub (token in remote URL)
 4. On submit: PHI parsed, all sensitive fields encrypted, request created, delivery orchestrated
 
 ### Delivery Pipeline
-- **Email first, fax fallback** — email is the primary delivery method. Fax only triggers if email fails after 3 retries.
+- **Email first, fax fallback** — email is the primary delivery method. Fax only triggers if email fails after 6 retries (~68 min window).
 - PDF emailed to: (1) radiology practice, (2) provider's clinic for filing, (3) patient (if opted in)
-- BullMQ worker (separate PM2 process) handles actual sending with retry + backoff
+- BullMQ worker (separate PM2 process) handles actual sending with retry + backoff (30s, 2m, 5m, 10m, 20m, 30m)
 - Fax via Notifyre API; confirmation via webhook (HMAC verified)
+- SMTP timeouts: 30s connection, 15s greeting, 30s socket. Notifyre fetch timeouts: 15s upload/send, 5s poll.
+- `DeliveryJob.recipient` stores the email/fax address for reliable retry without re-derivation
+
+### System Health Monitoring
+- **Admin health page** at `/admin/system` — real-time status of DB, Redis, SMTP, Notifyre, worker liveness, queue depth, and failed job history
+- **Worker heartbeat** — writes to Redis every 30s (`requests:worker:heartbeat`, TTL 120s). Health page shows stale if >2min old.
+- **Periodic health checks** — worker runs dependency probes every 5 minutes (DB, Redis, SMTP, Notifyre)
+- **Alert notifications** — email to `ALERT_EMAIL`, SMS fallback via Notifyre to `ALERT_PHONE` if SMTP is down
+- **Throttling** — dependency-down alerts throttled to 1 per dependency per 15 minutes. Delivery failure alerts are unthrottled (fire only on permanent failure).
+- **Bulk retry** — "Retry All Failed" button on `/admin/system` resets and re-queues all failed DeliveryJobs
+
+### User Onboarding
+- Admin creates user at `/admin/users/new` — welcome email with temp password sent automatically
+- 4-step setup wizard at `/setup`: change password, set up MFA, add provider number, upload signature
+- `onboardedAt` set on completion; middleware enforces `/setup` redirect until onboarded
 
 ### PDF Generation
 - Header shows the provider's clinic name, address, contact details (not hardcoded)
@@ -155,6 +170,10 @@ All of `rawPhiInput`, `parsedPhi`, `clinicalDetails`, and `patientEmail` stored 
 - **Validation schemas:** `src/lib/validation.ts`
 - **API auth:** `src/lib/api-auth.ts`
 - **Audit logging:** `src/lib/audit.ts`
+- **Alert notifications:** `src/lib/alerts.ts`
+- **Health probes:** `src/lib/health.ts`
+- **Health monitor (worker):** `worker/health-monitor.ts`
+- **System health page:** `src/app/(app)/admin/system/page.tsx`
 - **Signature upload:** `src/app/(app)/settings/signature/`
 - **Provider management:** `src/app/(app)/settings/providers/`
 - **Radiologist management:** `src/app/(app)/admin/radiologists/`

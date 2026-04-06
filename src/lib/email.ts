@@ -26,6 +26,9 @@ function getTransporter(): Transporter {
       host: "smtp.gmail.com",
       port: 587,
       secure: false, // STARTTLS
+      connectionTimeout: 30_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 30_000,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASSWORD,
@@ -102,6 +105,83 @@ export async function sendFilingEmail(
           contentType: "application/pdf",
         },
       ],
+    });
+
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown email error",
+    };
+  }
+}
+
+// --- SMTP health check ---
+
+export async function verifySMTP(): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await getTransporter().verify();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "SMTP verify failed" };
+  }
+}
+
+// --- Send admin alert email ---
+
+export async function sendAlertEmail(subject: string, body: string): Promise<void> {
+  const to = process.env.ALERT_EMAIL;
+  if (!to) return;
+  try {
+    await getTransporter().sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject: `[CURA Alert] ${subject}`,
+      text: body,
+    });
+  } catch (error) {
+    console.error("Failed to send alert email:", error instanceof Error ? error.message : error);
+  }
+}
+
+// --- Send welcome/invitation email to new user ---
+
+export async function sendWelcomeEmail(
+  to: string,
+  userName: string,
+  tempPassword: string
+): Promise<EmailResult> {
+  const appUrl = process.env.NEXTAUTH_URL || "https://requests.cura";
+  try {
+    const info = await getTransporter().sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject: "Welcome to CURA Requests — Your Account",
+      text: [
+        `Hi ${userName},`,
+        "",
+        "An account has been created for you on CURA Requests, our imaging request management system.",
+        "",
+        "Your temporary login credentials:",
+        "",
+        `  Email:    ${to}`,
+        `  Password: ${tempPassword}`,
+        "",
+        `Sign in at: ${appUrl}`,
+        "",
+        "On first login you will be guided through a short setup process:",
+        "  1. Change your password",
+        "  2. Set up two-factor authentication (MFA)",
+        "  3. Add your provider number(s)",
+        "  4. Upload your signature",
+        "",
+        "Please complete this setup promptly and do not share your credentials.",
+        "",
+        "If you have any questions, contact your administrator.",
+        "",
+        "Kind regards,",
+        "CURA Medical Specialists",
+      ].join("\n"),
     });
 
     return { success: true, messageId: info.messageId };

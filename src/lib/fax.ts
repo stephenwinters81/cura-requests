@@ -74,6 +74,7 @@ export async function sendFax(
         base64Str: pdfBuffer.toString("base64"),
         contentType: "application/pdf",
       }),
+      signal: AbortSignal.timeout(15_000),
     });
     const upload = (await uploadRes.json()) as {
       success: boolean;
@@ -86,18 +87,23 @@ export async function sendFax(
     const fileId = upload.payload.fileID || upload.payload.fileName;
 
     // Step 2: Poll until conversion completes (max 60s)
+    let conversionComplete = false;
     for (let i = 0; i < 20; i++) {
       await new Promise((r) => setTimeout(r, 3000));
       const pollRes = await fetch(
         `${NOTIFYRE_BASE}/fax/send/conversion/${fileId}`,
-        { headers: notifyreHeaders() }
+        { headers: notifyreHeaders(), signal: AbortSignal.timeout(5_000) }
       );
       const poll = (await pollRes.json()) as {
         payload?: { status?: string };
       };
       if (poll.payload?.status === "successful" || poll.payload?.status === "completed") {
+        conversionComplete = true;
         break;
       }
+    }
+    if (!conversionComplete) {
+      return { success: false, error: "Fax conversion timed out after 60s" };
     }
 
     // Step 3: Send fax
@@ -112,6 +118,7 @@ export async function sendFax(
           sendFrom: process.env.NOTIFYRE_SENDER_ID || undefined,
         },
       }),
+      signal: AbortSignal.timeout(15_000),
     });
     const send = (await sendRes.json()) as {
       success: boolean;
@@ -129,6 +136,45 @@ export async function sendFax(
       success: false,
       error: error instanceof Error ? error.message : "Unknown fax error",
     };
+  }
+}
+
+// --- Notifyre health check ---
+
+export async function verifyNotifyre(): Promise<{ ok: boolean; error?: string }> {
+  const apiKey = process.env.NOTIFYRE_API_KEY;
+  if (!apiKey) return { ok: false, error: "NOTIFYRE_API_KEY not set" };
+  try {
+    const res = await fetch(`${NOTIFYRE_BASE}/fax/numbers`, {
+      headers: notifyreHeaders(),
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!res.ok) return { ok: false, error: `HTTP ${res.status}` };
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Notifyre unreachable" };
+  }
+}
+
+// --- Send admin SMS alert via Notifyre ---
+
+export async function sendAdminSms(message: string): Promise<void> {
+  const to = process.env.ALERT_PHONE;
+  const apiKey = process.env.NOTIFYRE_API_KEY;
+  if (!to || !apiKey) return;
+  try {
+    await fetch(`${NOTIFYRE_BASE}/sms/send`, {
+      method: "POST",
+      headers: notifyreHeaders(),
+      body: JSON.stringify({
+        body: message,
+        recipients: [{ type: "mobile_number", value: to }],
+        sendFrom: process.env.NOTIFYRE_SMS_SENDER || "CURA",
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (error) {
+    console.error("Failed to send alert SMS:", error instanceof Error ? error.message : error);
   }
 }
 

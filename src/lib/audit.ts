@@ -26,7 +26,10 @@ export type AuditAction =
   | "delivery_failed"
   | "password_changed"
   | "device_trusted"
-  | "device_revoked";
+  | "device_revoked"
+  | "onboarding_complete"
+  | "system_alert_sent"
+  | "system_retry_all";
 
 export type ResourceType =
   | "imaging_request"

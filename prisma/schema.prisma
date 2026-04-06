@@ -19,6 +19,7 @@ model User {
   signatureImage    String?          // path to signature file
   failedAttempts    Int              @default(0)
   lockedAt          DateTime?
+  onboardedAt       DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   trustedDevices    TrustedDevice[]
@@ -123,6 +124,7 @@ model DeliveryJob {
   id          String          @id @default(cuid())
   requestId   String
   type        String // provider_email | provider_fax | filing_email | patient_email
+  recipient   String? // email address or fax number — stored for reliable retry
   status      String          @default("queued") // queued | processing | sent | delivered | failed
   attempts    Int             @default(0)
   lastError   String?

@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 import { userSchema } from "@/lib/validation";
+import { sendWelcomeEmail } from "@/lib/email";
 
 async function requireAdmin() {
   const session = await auth();
@@ -21,7 +22,7 @@ function generateTempPassword(): string {
   return randomBytes(12).toString("base64url").slice(0, 16);
 }
 
-export async function createUser(formData: FormData): Promise<{ tempPassword?: string; error?: string }> {
+export async function createUser(formData: FormData): Promise<{ tempPassword?: string; emailSent?: boolean; error?: string }> {
   const user = await requireAdmin();
 
   const raw = {
@@ -57,8 +58,14 @@ export async function createUser(formData: FormData): Promise<{ tempPassword?: s
 
   await logAudit(user.id, "user_created", "user", newUser.id, `Created user: ${newUser.email} (${newUser.role})`);
 
+  // Send welcome email with temp password (best-effort — admin still sees the password as fallback)
+  const emailResult = await sendWelcomeEmail(parsed.data.email, parsed.data.name, tempPassword);
+  if (!emailResult.success) {
+    console.error(`Failed to send welcome email to ${parsed.data.email}:`, emailResult.error);
+  }
+
   revalidatePath("/admin/users");
-  return { tempPassword };
+  return { tempPassword, emailSent: emailResult.success };
 }
 
 export async function updateUser(userId: string, formData: FormData): Promise<{ error?: string }> {

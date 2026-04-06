@@ -97,6 +97,7 @@ export async function orchestrateSubmission(
         data: {
           requestId,
           type: job.type,
+          recipient: job.recipient,
           status: "queued",
           attempts: 0,
         },

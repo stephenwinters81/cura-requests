@@ -45,7 +45,7 @@ if (process.env.NODE_ENV !== "production") {
 
 // --- Custom backoff delays (ms) ---
 
-const BACKOFF_DELAYS = [30_000, 120_000, 600_000]; // 30s, 2min, 10min
+const BACKOFF_DELAYS = [30_000, 120_000, 300_000, 600_000, 1_200_000, 1_800_000]; // 30s, 2min, 5min, 10min, 20min, 30min (~68min total)
 
 // --- Queue a delivery job ---
 
@@ -61,7 +61,7 @@ export async function queueDelivery(
     { requestId, deliveryJobId, type, recipient, pdfPath },
     {
       jobId: deliveryJobId, // idempotency — same ID won't be queued twice
-      attempts: 3,
+      attempts: 6,
       backoff: {
         type: "custom",
       },
