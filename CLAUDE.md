@@ -35,8 +35,10 @@ npm run worker       # Start BullMQ delivery worker
 npx prisma db push   # Push schema changes (no shadow DB needed)
 npx prisma studio    # Database GUI
 npx prisma db seed   # Seed providers, exam types, admin + doctor users
-pm2 restart requests-app --update-env   # Restart app (picks up new env vars)
+bash deploy/deploy.sh                    # Full deploy (build + restart + health check)
+pm2 restart requests-app --update-env    # Restart app only (use deploy.sh instead)
 pm2 restart requests-worker --update-env # Restart worker
+pm2 start ecosystem.config.js            # Start from config (after pm2 delete all)
 git push             # Push to GitHub (token in remote URL)
 ```
 
@@ -46,7 +48,9 @@ git push             # Push to GitHub (token in remote URL)
 - **Branch:** main
 - **Host:** BinaryLane VPS (requests-cura via Tailscale)
 - **Process manager:** PM2 (requests-app + requests-worker)
-- **Deploy workflow:** edit → `npm run build` → `pm2 restart requests-app requests-worker --update-env`
+- **Deploy script:** `bash deploy/deploy.sh` (npm ci → prisma → build → pm2 restart + health check)
+- **Auto-deploy:** `post-merge` git hook runs `deploy.sh` after every `git pull`
+- **PM2 config:** `ecosystem.config.js` — max 10 restarts, 10s min uptime, 3s restart delay
 - **Git user:** Stephen Winters (stephen.winters@gmail.com / stephenwinters81)
 
 ## Architecture Notes
@@ -79,6 +83,9 @@ git push             # Push to GitHub (token in remote URL)
 - **Alert notifications** — email to `ALERT_EMAIL`, SMS fallback via Notifyre to `ALERT_PHONE` if SMTP is down
 - **Throttling** — dependency-down alerts throttled to 1 per dependency per 15 minutes. Delivery failure alerts are unthrottled (fire only on permanent failure).
 - **Bulk retry** — "Retry All Failed" button on `/admin/system` resets and re-queues all failed DeliveryJobs
+- **Health endpoints** — `GET /api/health` checks DB + Redis (optional Bearer token auth via `HEALTH_CHECK_TOKEN`); `GET /api/health/queue` checks Redis + BullMQ queue depth
+- **PM2 process monitoring** — `deploy/health-monitor.sh` (cron, every minute) detects stopped PM2 processes, alerts, and auto-recovers (full redeploy for app, restart for worker)
+- **Restart caps** — PM2 stops processes after 10 rapid restarts (crashes within 10s of boot) to prevent infinite crash loops
 
 ### User Onboarding
 - Admin creates user at `/admin/users/new` — welcome email with temp password sent automatically
@@ -177,6 +184,11 @@ All of `rawPhiInput`, `parsedPhi`, `clinicalDetails`, and `patientEmail` stored 
 - **Signature upload:** `src/app/(app)/settings/signature/`
 - **Provider management:** `src/app/(app)/settings/providers/`
 - **Radiologist management:** `src/app/(app)/admin/radiologists/`
+- **Deploy script:** `deploy/deploy.sh`
+- **PM2 config:** `ecosystem.config.js`
+- **Health monitor (cron):** `deploy/health-monitor.sh`
+- **Health endpoint:** `src/app/api/health/route.ts`
+- **Queue health endpoint:** `src/app/api/health/queue/route.ts`
 
 ## Conventions
 
