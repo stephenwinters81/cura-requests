@@ -29,6 +29,9 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: '512M',
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 3000,
 
       // Logging — off-box log shipping picks up from these paths
       output: '/var/log/requests/app.log',
@@ -39,9 +42,6 @@ module.exports = {
       // Graceful restart
       kill_timeout: 5000,
       listen_timeout: 10000,
-
-      // Restart backoff for crash loops
-      exp_backoff_restart_delay: 100,
     },
 
     // -------------------------------------------------------
@@ -62,6 +62,9 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: '256M',
+      max_restarts: 10,
+      min_uptime: '10s',
+      restart_delay: 3000,
 
       // Logging
       output: '/var/log/requests/worker.log',
@@ -71,9 +74,6 @@ module.exports = {
 
       // Graceful restart
       kill_timeout: 10000,
-
-      // Restart backoff for crash loops
-      exp_backoff_restart_delay: 100,
     },
   ],
 };

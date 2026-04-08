@@ -201,14 +201,14 @@ check_queue_health() {
     local response http_code body
 
     # Build auth header if HEALTH_CHECK_TOKEN is set
-    local auth_header=""
+    local auth_args=()
     if [[ -n "${HEALTH_CHECK_TOKEN:-}" ]]; then
-        auth_header="-H \"Authorization: Bearer ${HEALTH_CHECK_TOKEN}\""
+        auth_args=(-H "Authorization: Bearer ${HEALTH_CHECK_TOKEN}")
     fi
 
     http_code=$(curl -s -o /tmp/queue_health.json -w '%{http_code}' \
         --max-time 10 \
-        ${auth_header} \
+        "${auth_args[@]}" \
         "${QUEUE_HEALTH_ENDPOINT}" 2>/dev/null)
 
     if [[ "${http_code}" != "200" ]]; then
@@ -236,6 +236,41 @@ check_queue_health() {
 }
 
 # -------------------------------------------------------
+# Check 8: PM2 process status
+# If a process has stopped (e.g. max_restarts exceeded),
+# alert and attempt to restart it.
+# -------------------------------------------------------
+check_pm2_processes() {
+    local any_failed=0
+
+    for proc in requests-app requests-worker; do
+        local status
+        status=$(pm2 jlist 2>/dev/null | python3 -c "
+import sys, json
+procs = json.load(sys.stdin)
+for p in procs:
+    if p['name'] == '${proc}':
+        print(p['pm2_env']['status'])
+        break
+" 2>/dev/null || echo "unknown")
+
+        if [[ "${status}" != "online" ]]; then
+            send_alert "CRITICAL" "PM2 Process Down" \
+                "${proc} status is '${status}' — attempting recovery"
+            if [[ "${proc}" == "requests-app" ]]; then
+                # Full redeploy to avoid stale build chunks
+                bash /var/www/requests/deploy/deploy.sh >> "${LOG_FILE}" 2>&1 || true
+            else
+                pm2 restart "${proc}" --update-env >> "${LOG_FILE}" 2>&1 || true
+            fi
+            any_failed=1
+        fi
+    done
+
+    return "${any_failed}"
+}
+
+# -------------------------------------------------------
 # Main execution
 # -------------------------------------------------------
 main() {
@@ -248,6 +283,7 @@ main() {
     check_redis         || ((failures++))
     check_postgresql    || ((failures++))
     check_queue_health  || ((failures++))
+    check_pm2_processes || ((failures++))
 
     if [[ "${failures}" -eq 0 ]]; then
         echo "[$(date '+%Y-%m-%d %H:%M:%S %Z')] All health checks passed" >> "${LOG_FILE}"
